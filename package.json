@@ -1,0 +1,14 @@
+{
+  "name": "aurelux-beauty",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo Aurelux Beauty (frontend Next.js + backend).",
+  "scripts": {
+    "dev": "npm --prefix apps/frontend run dev",
+    "build": "npm --prefix apps/frontend run build",
+    "start": "npm --prefix apps/frontend run start",
+    "lint": "npm --prefix apps/frontend run lint",
+    "install:frontend": "npm --prefix apps/frontend install"
+  }
+}
+
