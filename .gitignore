@@ -26,3 +26,6 @@ Thumbs.db
 .idea/
 .vscode/
 
+# npm
+.npm-change-local
+.npm-cache-26628623-0e38-413a-8708-cec4ed1a34a8

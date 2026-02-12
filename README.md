@@ -1,56 +1,60 @@
-# Aurelux Beauty Website
+# Aurelux Beauty
 
-Website katalog resmi Aurelux Beauty berbasis Next.js (App Router), difokuskan untuk branding dan product showcase dengan CTA ke WhatsApp.
+Monorepo untuk website katalog Aurelux Beauty (public site) dan admin panel pengelolaan konten.
 
 ## Ringkasan
 
-- Tipe aplikasi: single-page catalog website (bukan e-commerce)
-- Stack utama: Next.js 14, React 18, CSS global (tanpa UI framework)
-- Arsitektur repo: monorepo sederhana (`apps/frontend` + placeholder `apps/backend`)
-- Referensi brief: `docs/konsep/KAK_Aurelux_Beauty.md`
+- Frontend: Next.js 14 (App Router), React 18, Tailwind CSS
+- Admin panel: route `/admin` dengan login berbasis MongoDB
+- Konten: MongoDB (`CONTENT_STORE_DRIVER=mongo`, runtime mongo-only)
+- Media upload: disimpan ke `apps/frontend/public/uploads`
 
-## Fitur Frontend Saat Ini
+## Fitur Utama
 
-- Sticky header + anchor navigation (`#home`, `#produk`, `#tentang`, `#kontak`)
-- Smooth scroll antar section
-- Hero section dengan background video (fallback poster image)
-- Product showcase 2 produk unggulan
-- Quick View modal (overlay, close via klik backdrop/tombol `X`/tombol `Escape`)
-- CTA WhatsApp per produk dan CTA global
-- Floating WhatsApp button pada mobile
-- Responsive layout untuk desktop/tablet/mobile
-- SEO metadata dasar di `app/layout.js` (title, description, Open Graph image)
+### Public Website
 
-## Struktur Proyek
+- Sticky header + navigasi anchor section
+- Hero banner (title, subtitle, video/poster/image)
+- Section produk + quick view modal
+- Section tentang kami, kontak, sosial media
+- Floating WhatsApp button
+- Responsive desktop/tablet/mobile
+
+### Admin Panel
+
+- Login admin (`/admin/login`)
+- Produk: tambah, edit, hapus (hard delete)
+- Media produk: upload/ganti gambar card dan detail
+- Profil: edit tentang kami, kontak, sosial media
+- Video Banner: edit teks banner terpisah dari media banner
+- Upload media via API admin (`/api/admin/media`)
+
+## Arsitektur Repo
 
 ```text
 aurelux-beauty/
 |-- apps/
-|   |-- frontend/                 # Next.js app (aktif)
+|   |-- frontend/                      # Next.js app aktif
 |   |   |-- app/
-|   |   |   |-- layout.js
-|   |   |   |-- page.js
-|   |   |   `-- globals.css
-|   |   |-- components/
-|   |   |   `-- home-page.jsx
-|   |   `-- public/
-|   |       |-- product/          # Aset gambar produk
-|   |       |-- logo/             # Logo BPOM & Halal
-|   |       `-- assets/           # Folder aset tambahan (opsional)
-|   `-- backend/                  # Placeholder (belum diimplementasi)
-`-- docs/
-    |-- HLD.md
-    `-- konsep/
-        |-- KAK_Aurelux_Beauty.md
-        `-- Konsep_Bisnis_Aurelux_Beauty.md
+|   |   |   |-- page.js               # Home page entry
+|   |   |   |-- home/                 # Komponen halaman home
+|   |   |   |-- admin/                # Halaman admin panel
+|   |   |   `-- api/admin/            # API admin (auth/content/products/media/settings)
+|   |   |-- lib/                      # Content store, mongo client, auth, media
+|   |   |-- scripts/                  # Setup schema/admin/migrasi mongo
+|   |   |-- data/site-content.json    # Arsip konten awal untuk migrasi ke MongoDB
+|   |   `-- public/                   # Aset statis + uploads
+|   `-- backend/                      # Placeholder (belum dipakai)
+`-- docs/                             # Dokumen konsep & HLD
 ```
 
 ## Prasyarat
 
-- Node.js `>= 18.17` (disarankan Node.js 20 LTS)
+- Node.js `>= 18.17` (disarankan 20 LTS)
 - npm `>= 9`
+- MongoDB (wajib)
 
-## Menjalankan Secara Lokal
+## Quick Start (Lokal)
 
 1. Install dependency frontend:
 
@@ -58,64 +62,135 @@ aurelux-beauty/
 npm run install:frontend
 ```
 
-2. Jalankan development server dari root:
+2. Salin env:
+
+```powershell
+Copy-Item apps/frontend/.env.example apps/frontend/.env.local
+```
+
+3. Jalankan app:
 
 ```bash
 npm run dev
 ```
 
-3. Akses aplikasi:
+4. Buka:
 
-```text
-http://localhost:3000
+- Public site: `http://localhost:3000`
+- Admin login: `http://localhost:3000/admin/login`
+
+## Konfigurasi Environment
+
+Lokasi file: `apps/frontend/.env.local`
+
+| Variable | Default | Keterangan |
+|---|---|---|
+| `CONTENT_STORE_DRIVER` | `mongo` | Wajib `mongo` (runtime mongo-only) |
+| `MONGODB_URI` | `mongodb://localhost:27017` | URI koneksi MongoDB |
+| `MONGODB_DB_NAME` | `aurelux_beauty` | Nama database |
+| `MONGODB_PRODUCTS_COLLECTION` | `products` | Collection produk |
+| `MONGODB_SETTINGS_COLLECTION` | `site_settings` | Collection settings konten |
+| `MONGODB_SETTINGS_DOCUMENT_ID` | `main` | ID dokumen settings tunggal |
+| `MONGODB_MEDIA_COLLECTION` | `media_assets` | Collection metadata media |
+| `MONGODB_ACTIVITY_COLLECTION` | `activity_logs` | Collection activity log |
+| `MONGODB_ADMINS_COLLECTION` | `admins` | Collection akun admin |
+| `ADMIN_SEED_EMAIL` | `admin@aurelux.local` | Email admin awal (seed) |
+| `ADMIN_SEED_PASSWORD` | `Admin123#` | Password admin awal (seed) |
+| `ADMIN_SEED_ROLE` | `admin` | Role admin (saat ini hanya `admin`) |
+| `ADMIN_SESSION_SECRET` | - | Secret cookie session admin (wajib kuat di production) |
+
+## Setup MongoDB (Disarankan Untuk Production)
+
+1. Isi `MONGODB_URI` dan variabel Mongo lain di `.env.local`.
+2. Cek koneksi:
+
+```bash
+npm run check:mongo
 ```
+
+3. Buat/upgrade schema + index:
+
+```bash
+npm run setup:mongo:schema
+```
+
+4. Seed akun admin:
+
+```bash
+npm run setup:mongo:admin
+```
+
+5. (Opsional) Migrasi konten awal dari JSON lokal ke MongoDB:
+
+```bash
+npm run migrate:content:mongo
+```
+
+6. Pastikan driver Mongo aktif:
+
+```env
+CONTENT_STORE_DRIVER=mongo
+```
+
+7. Restart dev server.
+
+Catatan:
+- Data settings/produk/admin dibaca dan ditulis ke MongoDB.
+- File media upload tetap di filesystem (`public/uploads`), sedangkan metadata disimpan di collection `media_assets`.
+
+## Model Data MongoDB
+
+| Collection | Fungsi |
+|---|---|
+| `products` | Data produk (nama, USP, deskripsi, ingredients, usage, media) |
+| `site_settings` | Hero/banner, about, contact, socials, footer |
+| `media_assets` | Metadata file media upload + relasi penggunaan |
+| `activity_logs` | Log aktivitas admin di API |
+| `admins` | User admin + password hash + status aktif |
+
+## Auth & Akses Admin
+
+- Route yang diproteksi: `/admin/*` dan `/api/admin/*`
+- Route publik: website utama (`/`) tidak perlu login
+- Login memakai email/password dari collection `admins`
+- Session disimpan pada cookie httpOnly `aurelux_admin_session`
+- Role yang diizinkan saat ini: `admin`
 
 ## Scripts (Root)
 
-| Script | Perintah | Fungsi |
-|---|---|---|
-| `npm run dev` | `npm --prefix apps/frontend run dev` | Menjalankan Next.js dev server |
-| `npm run build` | `npm --prefix apps/frontend run build` | Build production |
-| `npm run start` | `npm --prefix apps/frontend run start` | Menjalankan hasil build |
-| `npm run lint` | `npm --prefix apps/frontend run lint` | Linting frontend |
-| `npm run install:frontend` | `npm --prefix apps/frontend install` | Install dependency frontend |
+| Script | Fungsi |
+|---|---|
+| `npm run dev` | Menjalankan frontend dev server |
+| `npm run build` | Build production frontend |
+| `npm run start` | Menjalankan hasil build frontend |
+| `npm run lint` | Lint frontend |
+| `npm run install:frontend` | Install dependency frontend |
+| `npm run check:mongo` | Cek koneksi MongoDB |
+| `npm run setup:mongo:schema` | Setup validator + index MongoDB |
+| `npm run setup:mongo:admin` | Seed/update akun admin |
+| `npm run migrate:content:mongo` | Migrasi konten local JSON ke MongoDB |
 
-## Scripts (Frontend)
+## Troubleshooting Singkat
 
-Lokasi: `apps/frontend/package.json`
-
-- `npm run dev`
-- `npm run build`
-- `npm run start`
-- `npm run lint`
-
-## Konvensi Aset
-
-- Gambar produk: simpan di `apps/frontend/public/product`
-- Logo BPOM/Halal: simpan di `apps/frontend/public/logo`
-- Hero video yang dipakai komponen saat ini: `/assets/media/hero-teaser.mp4`
-- Saat ini file video hero belum tersedia pada path tersebut, sehingga frontend menggunakan poster image
-
-## Konfigurasi Konten
-
-- Data menu, kontak, dan produk saat ini hardcoded di `apps/frontend/components/home-page.jsx`
-- Styling global ada di `apps/frontend/app/globals.css`
-- Metadata SEO dasar ada di `apps/frontend/app/layout.js`
-
-## Scope Saat Ini
-
-- Frontend katalog: aktif
-- Admin panel/backend: belum aktif (folder `apps/backend` masih placeholder)
+- Error `Module not found: Can't resolve 'mongodb'`:
+  jalankan `npm run install:frontend`.
+- Muncul error `Aplikasi dikunci ke MongoDB`:
+  set `CONTENT_STORE_DRIVER=mongo` di `apps/frontend/.env.local`.
+- Login admin gagal:
+  pastikan `setup:mongo:admin` sudah dijalankan dan koleksi `admins` terisi.
+- Install npm gagal karena proxy/offline:
+  nonaktifkan sementara proxy env (`HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`) lalu install ulang.
 
 ## Deployment
 
-### Opsi 1: Vercel (disarankan)
+### Vercel
 
-- Root Directory: `apps/frontend`
-- Build Command: `npm run build`
-- Output: default Next.js
+- Root directory: `apps/frontend`
+- Build command: `npm run build`
+- Start command: `npm run start` (default Next.js)
+- Set semua env di dashboard Vercel (terutama Mongo dan session secret)
 
-### Opsi 2: Node Server / VPS
+### VPS / Node Server
 
 ```bash
 npm run install:frontend
@@ -123,12 +198,8 @@ npm run build
 npm run start
 ```
 
-## Referensi Dokumen
+## Dokumen Referensi
 
-- Brief utama: `docs/konsep/KAK_Aurelux_Beauty.md`
-- Konsep bisnis: `docs/konsep/Konsep_Bisnis_Aurelux_Beauty.md`
-- High-level design: `docs/HLD.md`
-
-## Lisensi
-
-Belum ditentukan. Tambahkan file `LICENSE` sebelum publikasi open-source.
+- `docs/konsep/KAK_Aurelux_Beauty.md`
+- `docs/konsep/Konsep_Bisnis_Aurelux_Beauty.md`
+- `docs/HLD.md`

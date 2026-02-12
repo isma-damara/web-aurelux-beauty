@@ -1,0 +1,458 @@
+﻿import { DEFAULT_CONTENT, normalizeContent, normalizeProduct } from "./content-store";
+import { getMongoDb } from "./mongo-client";
+import { upsertMediaAsset } from "./mongo-media-asset-store";
+import { isManagedUploadUrl } from "./media-store";
+
+const DEFAULT_ACTOR = "system@aurelux.local";
+
+function getProductsCollectionName() {
+  return process.env.MONGODB_PRODUCTS_COLLECTION || "products";
+}
+
+function getSettingsCollectionName() {
+  return process.env.MONGODB_SETTINGS_COLLECTION || "site_settings";
+}
+
+function getSettingsDocumentId() {
+  return process.env.MONGODB_SETTINGS_DOCUMENT_ID || "main";
+}
+
+function normalizeActor(actor) {
+  if (typeof actor === "string" && actor.trim()) {
+    return actor.trim();
+  }
+  return DEFAULT_ACTOR;
+}
+
+async function getCollections() {
+  const db = await getMongoDb();
+  return {
+    db,
+    products: db.collection(getProductsCollectionName()),
+    settings: db.collection(getSettingsCollectionName())
+  };
+}
+
+function mapProductDocToContentProduct(doc) {
+  return normalizeProduct(
+    {
+      id: doc?._id,
+      name: doc?.name,
+      fullName: doc?.fullName,
+      cardImage: doc?.media?.cardImageUrl,
+      detailImage: doc?.media?.detailImageUrl,
+      usp: doc?.usp,
+      shortList: doc?.shortList,
+      description: doc?.description,
+      ingredients: doc?.ingredients,
+      usage: doc?.usage
+    },
+    0
+  );
+}
+
+function mapContentProductToProductDoc(product, index, actor, previousDoc = null) {
+  const now = new Date();
+  const normalized = normalizeProduct(product, index);
+
+  return {
+    _id: normalized.id,
+    slug: normalized.id,
+    name: normalized.name,
+    fullName: normalized.fullName,
+    usp: normalized.usp,
+    description: normalized.description,
+    usage: normalized.usage,
+    shortList: normalized.shortList,
+    ingredients: normalized.ingredients,
+    media: {
+      cardImageUrl: normalized.cardImage,
+      detailImageUrl: normalized.detailImage
+    },
+    status: "published",
+    sortOrder: (index + 1) * 10,
+    updatedAt: now,
+    updatedBy: normalizeActor(actor),
+    isDeleted: false,
+    createdAt: previousDoc?.createdAt || now,
+    createdBy: previousDoc?.createdBy || normalizeActor(actor)
+  };
+}
+
+function mapSettingsDocToContentParts(settingsDoc) {
+  return {
+    hero: settingsDoc?.hero ?? DEFAULT_CONTENT.hero,
+    about: settingsDoc?.about ?? DEFAULT_CONTENT.about,
+    contact: settingsDoc?.contact ?? DEFAULT_CONTENT.contact,
+    socials: settingsDoc?.socials ?? DEFAULT_CONTENT.socials,
+    footer: settingsDoc?.footer ?? DEFAULT_CONTENT.footer
+  };
+}
+
+function getMediaTypeFromUrl(url) {
+  if (typeof url !== "string") {
+    return "image";
+  }
+  if (/\/uploads\/videos\//.test(url)) {
+    return "video";
+  }
+  return "image";
+}
+
+async function linkManagedMedia(url, { usage, linkedEntity, actor }) {
+  if (!isManagedUploadUrl(url)) {
+    return;
+  }
+
+  await upsertMediaAsset(
+    {
+      url,
+      type: getMediaTypeFromUrl(url),
+      usage,
+      linkedEntity
+    },
+    { actor }
+  );
+}
+
+async function syncProductMediaLinksFromContent(products, actor) {
+  for (const product of products) {
+    const normalized = normalizeProduct(product);
+
+    await linkManagedMedia(normalized.cardImage, {
+      usage: "product_card",
+      linkedEntity: { collection: getProductsCollectionName(), id: normalized.id },
+      actor
+    });
+
+    await linkManagedMedia(normalized.detailImage, {
+      usage: "product_detail",
+      linkedEntity: { collection: getProductsCollectionName(), id: normalized.id },
+      actor
+    });
+  }
+}
+
+async function syncHeroMediaLinks(hero, actor) {
+  const settingsId = getSettingsDocumentId();
+
+  await linkManagedMedia(hero?.videoUrl, {
+    usage: "hero_video",
+    linkedEntity: { collection: getSettingsCollectionName(), id: settingsId },
+    actor
+  });
+
+  await linkManagedMedia(hero?.posterImage, {
+    usage: "hero_poster",
+    linkedEntity: { collection: getSettingsCollectionName(), id: settingsId },
+    actor
+  });
+
+  await linkManagedMedia(hero?.heroProductImage, {
+    usage: "hero_product",
+    linkedEntity: { collection: getSettingsCollectionName(), id: settingsId },
+    actor
+  });
+}
+
+export async function readContentFromMongo() {
+  const { products, settings } = await getCollections();
+  const [settingsDoc, productDocs] = await Promise.all([
+    settings.findOne({ _id: getSettingsDocumentId() }),
+    products
+      .find({ isDeleted: { $ne: true } })
+      .sort({ sortOrder: 1, updatedAt: -1 })
+      .toArray()
+  ]);
+
+  if (!settingsDoc && productDocs.length === 0) {
+    return normalizeContent(DEFAULT_CONTENT);
+  }
+
+  const base = mapSettingsDocToContentParts(settingsDoc);
+  const merged = {
+    ...DEFAULT_CONTENT,
+    ...base,
+    products: productDocs.map((doc) => mapProductDocToContentProduct(doc))
+  };
+
+  return normalizeContent(merged);
+}
+
+export async function writeContentToMongo(nextContent, options = {}) {
+  const actor = normalizeActor(options?.actor);
+  const normalized = normalizeContent(nextContent);
+  const now = new Date();
+
+  const { products, settings } = await getCollections();
+  const existingDocs = await products.find({}, { projection: { _id: 1, createdAt: 1, createdBy: 1 } }).toArray();
+  const existingMap = new Map(existingDocs.map((doc) => [doc._id, doc]));
+
+  const upserts = normalized.products.map((product, index) => {
+    const doc = mapContentProductToProductDoc(product, index, actor, existingMap.get(product.id));
+
+    return {
+      updateOne: {
+        filter: { _id: doc._id },
+        update: {
+          $set: {
+            slug: doc.slug,
+            name: doc.name,
+            fullName: doc.fullName,
+            usp: doc.usp,
+            description: doc.description,
+            usage: doc.usage,
+            shortList: doc.shortList,
+            ingredients: doc.ingredients,
+            media: doc.media,
+            status: doc.status,
+            sortOrder: doc.sortOrder,
+            updatedAt: doc.updatedAt,
+            updatedBy: doc.updatedBy,
+            isDeleted: false
+          },
+          $setOnInsert: {
+            createdAt: doc.createdAt,
+            createdBy: doc.createdBy
+          }
+        },
+        upsert: true
+      }
+    };
+  });
+
+  if (upserts.length > 0) {
+    await products.bulkWrite(upserts, { ordered: false });
+  }
+
+  const nextIds = new Set(normalized.products.map((item) => item.id));
+  const toDelete = existingDocs.map((doc) => doc._id).filter((id) => !nextIds.has(id));
+
+  if (toDelete.length > 0) {
+    await products.deleteMany({ _id: { $in: toDelete } });
+  }
+
+  await settings.updateOne(
+    { _id: getSettingsDocumentId() },
+    {
+      $set: {
+        hero: normalized.hero,
+        about: normalized.about,
+        contact: normalized.contact,
+        socials: normalized.socials,
+        footer: normalized.footer,
+        updatedAt: now,
+        updatedBy: actor,
+        schemaVersion: 1
+      },
+      $setOnInsert: {
+        createdAt: now,
+        createdBy: actor
+      }
+    },
+    { upsert: true }
+  );
+
+  await syncProductMediaLinksFromContent(normalized.products, actor);
+  await syncHeroMediaLinks(normalized.hero, actor);
+
+  return normalized;
+}
+
+export async function listProductsFromMongo() {
+  const { products } = await getCollections();
+  const docs = await products
+    .find({ isDeleted: { $ne: true } })
+    .sort({ sortOrder: 1, updatedAt: -1 })
+    .toArray();
+
+  return docs.map((doc) => mapProductDocToContentProduct(doc));
+}
+
+export async function createProductInMongo(payload, options = {}) {
+  const actor = normalizeActor(options?.actor);
+  const normalized = normalizeProduct(payload, 0);
+
+  if (!normalized.name || !normalized.fullName) {
+    throw new Error("Nama produk dan nama lengkap wajib diisi.");
+  }
+
+  const { products } = await getCollections();
+  let nextId = normalized.id;
+  let counter = 2;
+
+  while (true) {
+    const exists = await products.findOne({ _id: nextId }, { projection: { _id: 1 } });
+    if (!exists) {
+      break;
+    }
+    nextId = `${normalized.id}-${counter}`;
+    counter += 1;
+  }
+
+  const last = await products.find({ isDeleted: { $ne: true } }).sort({ sortOrder: -1 }).limit(1).toArray();
+  const sortOrder = (last[0]?.sortOrder || 0) + 10;
+  const now = new Date();
+
+  await products.insertOne({
+    _id: nextId,
+    slug: nextId,
+    name: normalized.name,
+    fullName: normalized.fullName,
+    usp: normalized.usp,
+    description: normalized.description,
+    usage: normalized.usage,
+    shortList: normalized.shortList,
+    ingredients: normalized.ingredients,
+    media: {
+      cardImageUrl: normalized.cardImage,
+      detailImageUrl: normalized.detailImage
+    },
+    status: "published",
+    sortOrder,
+    createdAt: now,
+    createdBy: actor,
+    updatedAt: now,
+    updatedBy: actor,
+    isDeleted: false
+  });
+
+  await syncProductMediaLinksFromContent([
+    {
+      ...normalized,
+      id: nextId
+    }
+  ], actor);
+
+  return listProductsFromMongo();
+}
+
+export async function updateProductInMongo(productId, payload, options = {}) {
+  const actor = normalizeActor(options?.actor);
+  const { products } = await getCollections();
+  const current = await products.findOne({ _id: productId, isDeleted: { $ne: true } });
+
+  if (!current) {
+    return null;
+  }
+
+  const merged = normalizeProduct(
+    {
+      ...mapProductDocToContentProduct(current),
+      ...payload,
+      id: productId
+    },
+    0
+  );
+
+  await products.updateOne(
+    { _id: productId },
+    {
+      $set: {
+        slug: merged.id,
+        name: merged.name,
+        fullName: merged.fullName,
+        usp: merged.usp,
+        description: merged.description,
+        usage: merged.usage,
+        shortList: merged.shortList,
+        ingredients: merged.ingredients,
+        media: {
+          cardImageUrl: merged.cardImage,
+          detailImageUrl: merged.detailImage
+        },
+        updatedAt: new Date(),
+        updatedBy: actor,
+        isDeleted: false,
+        status: "published"
+      }
+    }
+  );
+
+  await syncProductMediaLinksFromContent([merged], actor);
+
+  return merged;
+}
+
+export async function deleteProductInMongo(productId) {
+  const { products } = await getCollections();
+  const result = await products.deleteOne({ _id: productId });
+
+  if (!result.matchedCount) {
+    return null;
+  }
+
+  return listProductsFromMongo();
+}
+
+export async function readSettingsFromMongo() {
+  const { settings } = await getCollections();
+  const settingsDoc = await settings.findOne({ _id: getSettingsDocumentId() });
+
+  if (!settingsDoc) {
+    return {
+      hero: DEFAULT_CONTENT.hero,
+      about: DEFAULT_CONTENT.about,
+      contact: DEFAULT_CONTENT.contact,
+      socials: DEFAULT_CONTENT.socials,
+      footer: DEFAULT_CONTENT.footer
+    };
+  }
+
+  const parts = mapSettingsDocToContentParts(settingsDoc);
+  return {
+    hero: parts.hero,
+    about: parts.about,
+    contact: parts.contact,
+    socials: parts.socials,
+    footer: parts.footer
+  };
+}
+
+export async function updateSettingsInMongo(partialSettings, options = {}) {
+  const actor = normalizeActor(options?.actor);
+  const current = await readSettingsFromMongo();
+
+  const merged = {
+    hero: partialSettings?.hero ? { ...current.hero, ...partialSettings.hero } : current.hero,
+    about: partialSettings?.about ? { ...current.about, ...partialSettings.about } : current.about,
+    contact: partialSettings?.contact ? { ...current.contact, ...partialSettings.contact } : current.contact,
+    socials: partialSettings?.socials ? { ...current.socials, ...partialSettings.socials } : current.socials,
+    footer: partialSettings?.footer ? { ...current.footer, ...partialSettings.footer } : current.footer
+  };
+
+  const normalized = normalizeContent({
+    ...DEFAULT_CONTENT,
+    ...merged,
+    products: []
+  });
+
+  const { settings } = await getCollections();
+  const now = new Date();
+
+  await settings.updateOne(
+    { _id: getSettingsDocumentId() },
+    {
+      $set: {
+        hero: normalized.hero,
+        about: normalized.about,
+        contact: normalized.contact,
+        socials: normalized.socials,
+        footer: normalized.footer,
+        updatedAt: now,
+        updatedBy: actor,
+        schemaVersion: 1
+      },
+      $setOnInsert: {
+        createdAt: now,
+        createdBy: actor
+      }
+    },
+    { upsert: true }
+  );
+
+  await syncHeroMediaLinks(normalized.hero, actor);
+
+  const fullContent = await readContentFromMongo();
+  return normalizeContent(fullContent);
+}

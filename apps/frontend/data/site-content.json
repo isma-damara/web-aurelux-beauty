@@ -1,0 +1,90 @@
+{
+  "hero": {
+    "title": "Tenangkan Kulitmu,\nJalani Harimu",
+    "subtitle": "Skincare harian yang lembut, simpel, dan aman untuk membantu kulit tetap nyaman dan bercahaya sepanjang hari.",
+    "videoUrl": "/assets/media/hero-teaser.mp4",
+    "posterImage": "/product/product2.jpeg",
+    "heroProductImage": "/product/product2.jpeg"
+  },
+  "products": [
+    {
+      "id": "toner",
+      "name": "Brightening Face Spray Toner",
+      "fullName": "Aurelux Brightening Face Spray Toner",
+      "cardImage": "/product/product1.jpeg",
+      "detailImage": "/product/product1.jpeg",
+      "usp": "Toner spray pencerah harian yang membantu menenangkan iritasi ringan.",
+      "shortList": [
+        "Niacinamide",
+        "Ceramide NP",
+        "Kojic Acid",
+        "Centella Asiatica Extract"
+      ],
+      "description": "Nikmati kesegaran instan dan hidrasi mendalam dengan toner spray premium ini. Formula ringan membantu mencerahkan, menenangkan, dan menjaga kelembaban kulit sepanjang hari.",
+      "ingredients": [
+        "Niacinamide",
+        "Ceramide NP",
+        "Kojic Acid",
+        "Centella Asiatica Extract"
+      ],
+      "usage": "Semprotkan merata ke wajah bersih dari jarak 15-20 cm. Gunakan pagi dan malam sebelum moisturizer atau kapan pun kulit terasa membutuhkan hidrasi."
+    },
+    {
+      "id": "moisturizer",
+      "name": "Crystal Bright Moisturizer",
+      "fullName": "Aurelux Crystal Bright Moisturizer",
+      "cardImage": "/product/product4.jpeg",
+      "detailImage": "/product/product4.jpeg",
+      "usp": "Moisturizer ringan harian untuk menjaga kelembaban dan kenyamanan kulit.",
+      "shortList": [
+        "Membantu menjaga hidrasi kulit",
+        "Membuat kulit terasa lebih halus",
+        "Nyaman digunakan pagi dan malam"
+      ],
+      "description": "Moisturizer bertekstur ringan dengan formula lembut yang menjaga kulit tetap lembab, halus, dan terlihat sehat. Cocok untuk rutinitas skincare harian.",
+      "ingredients": [
+        "Glycerin",
+        "Niacinamide",
+        "Ceramide Complex",
+        "Aloe Vera Extract"
+      ],
+      "usage": "Aplikasikan secukupnya pada wajah dan leher setelah toner. Gunakan setiap pagi dan malam untuk hasil optimal."
+    }
+  ],
+  "about": {
+    "title": "TENTANG AURELUX BEAUTY",
+    "description": "AURELUX BEAUTY berkomitmen menghadirkan rangkaian perawatan kulit premium yang aman dan efektif. Filosofi kami adalah memadukan bahan pilihan dengan formulasi modern untuk membantu menjaga kelembaban, kenyamanan, dan tampilan kulit yang sehat setiap hari.",
+    "highlights": [
+      {
+        "value": "100%",
+        "label": "Produk Aman"
+      },
+      {
+        "value": "2",
+        "label": "Produk Unggulan"
+      },
+      {
+        "value": "BPOM",
+        "label": "dan Halal"
+      }
+    ]
+  },
+  "contact": {
+    "headline": "Tertarik Dengan Produk Kami?",
+    "description": "Dapatkan konsultasi gratis dan temukan solusi perawatan kulit terbaik untuk Anda.",
+    "whatsapp": "6285863557320",
+    "email": "Aureluxbeautycare@gmail.com",
+    "phone": "0858-6355-7320",
+    "pic": "Fazri",
+    "address": "Jl. KH Abdullah Syafei No.23 A, Kebon Baru, Tebet, Jakarta Selatan"
+  },
+  "socials": {
+    "instagram": "#",
+    "facebook": "#",
+    "tiktok": "#"
+  },
+  "footer": {
+    "tagline": "Your Daily Glow. Naturally.",
+    "copyright": "Copyright 2026 Aurelux Beauty. All rights reserved."
+  }
+}

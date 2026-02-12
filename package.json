@@ -8,7 +8,10 @@
     "build": "npm --prefix apps/frontend run build",
     "start": "npm --prefix apps/frontend run start",
     "lint": "npm --prefix apps/frontend run lint",
-    "install:frontend": "npm --prefix apps/frontend install"
+    "install:frontend": "npm --prefix apps/frontend install",
+    "setup:mongo:schema": "npm --prefix apps/frontend run setup:mongo:schema",
+    "setup:mongo:admin": "npm --prefix apps/frontend run setup:mongo:admin",
+    "migrate:content:mongo": "npm --prefix apps/frontend run migrate:content:mongo",
+    "check:mongo": "npm --prefix apps/frontend run check:mongo"
   }
 }
-

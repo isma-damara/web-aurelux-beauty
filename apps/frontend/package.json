@@ -6,11 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup:mongo:schema": "node ./scripts/setup-mongo-schema.mjs",
+    "setup:mongo:admin": "node ./scripts/setup-mongo-admin.mjs",
+    "migrate:content:mongo": "node ./scripts/migrate-content-to-mongo.mjs",
+    "check:mongo": "node ./scripts/check-mongo-connection.mjs"
   },
   "dependencies": {
+    "mongodb": "^6.16.0",
     "next": "14.2.25",
     "react": "18.3.1",
     "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19"
   }
 }
