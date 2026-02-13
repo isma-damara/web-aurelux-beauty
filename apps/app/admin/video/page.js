@@ -51,6 +51,8 @@ const styles = {
 };
 
 const labelClass = "grid gap-[5px] text-[0.83rem] text-gray-600";
+const inputClass =
+  "w-full rounded-[9px] border border-gray-300 bg-white px-[10px] py-[9px] text-[0.86rem] text-gray-900 outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-300/30";
 const textareaClass =
   "w-full rounded-[9px] border border-gray-300 bg-white px-[10px] py-[9px] text-[0.86rem] text-gray-900 outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-300/30";
 
@@ -417,6 +419,15 @@ export default function AdminVideoPage() {
                   })
                 }
               />
+              <label className={labelClass}>
+                URL Video Banner (opsional)
+                <input
+                  className={inputClass}
+                  value={heroForm.videoUrl}
+                  onChange={(event) => setHeroForm((prev) => ({ ...prev, videoUrl: event.target.value }))}
+                  placeholder="https://cdn.example.com/hero-banner.mp4"
+                />
+              </label>
               <div className={styles.mediaActions}>
                 <label className={styles.uploadButton}>
                   Upload Video Banner
@@ -452,6 +463,15 @@ export default function AdminVideoPage() {
                   })
                 }
               />
+              <label className={labelClass}>
+                URL Poster Banner (opsional)
+                <input
+                  className={inputClass}
+                  value={heroForm.posterImage}
+                  onChange={(event) => setHeroForm((prev) => ({ ...prev, posterImage: event.target.value }))}
+                  placeholder="https://cdn.example.com/hero-poster.jpg"
+                />
+              </label>
               <div className={styles.mediaActions}>
                 <label className={styles.uploadButton}>
                   Upload Poster Banner
@@ -487,6 +507,15 @@ export default function AdminVideoPage() {
                   })
                 }
               />
+              <label className={labelClass}>
+                URL Gambar Produk Banner (opsional)
+                <input
+                  className={inputClass}
+                  value={heroForm.heroProductImage}
+                  onChange={(event) => setHeroForm((prev) => ({ ...prev, heroProductImage: event.target.value }))}
+                  placeholder="https://cdn.example.com/hero-product.jpg"
+                />
+              </label>
               <div className={styles.mediaActions}>
                 <label className={styles.uploadButton}>
                   Upload Gambar Banner

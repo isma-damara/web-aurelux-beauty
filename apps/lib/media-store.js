@@ -4,6 +4,14 @@ import { resolvePublicDirectoryPath } from "./content-store";
 
 const MAX_UPLOAD_SIZE = 25 * 1024 * 1024;
 
+function assertUploadWritableRuntime() {
+  if (process.env.VERCEL === "1") {
+    throw new Error(
+      "Upload file langsung tidak didukung di Vercel karena filesystem tidak persisten. Gunakan URL media eksternal/CDN."
+    );
+  }
+}
+
 function sanitizeBaseName(value) {
   return value
     .toLowerCase()
@@ -69,6 +77,7 @@ export async function saveUploadedFile(file) {
   const uploadDir = path.join(publicDir, "uploads", uploadType);
   const absolutePath = path.join(uploadDir, fileName);
 
+  assertUploadWritableRuntime();
   await fs.mkdir(uploadDir, { recursive: true });
   const arrayBuffer = await file.arrayBuffer();
   await fs.writeFile(absolutePath, Buffer.from(arrayBuffer));

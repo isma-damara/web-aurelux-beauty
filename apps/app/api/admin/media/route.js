@@ -41,7 +41,8 @@ export async function POST(request) {
 
     return NextResponse.json(savedFile, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ message: error.message || "Gagal upload media." }, { status: 500 });
+    const status = /tidak didukung di Vercel/i.test(error?.message) ? 400 : 500;
+    return NextResponse.json({ message: error.message || "Gagal upload media." }, { status });
   }
 }
 

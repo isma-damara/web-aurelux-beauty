@@ -464,6 +464,15 @@ export default function AdminProductsPage() {
                   alt={productForm.fullName || productForm.name || "Gambar card produk"}
                   emptyText="Belum ada gambar card."
                 />
+                <label className={labelClass}>
+                  URL Gambar Card (opsional)
+                  <input
+                    className={inputClass}
+                    value={productForm.cardImage}
+                    onChange={(event) => setProductForm((prev) => ({ ...prev, cardImage: event.target.value }))}
+                    placeholder="https://cdn.example.com/product-card.jpg"
+                  />
+                </label>
                 <div className={styles.mediaActions}>
                   <label className={styles.uploadButton}>
                     Upload Gambar Card
@@ -492,6 +501,15 @@ export default function AdminProductsPage() {
                   alt={productForm.fullName || productForm.name || "Gambar detail produk"}
                   emptyText="Belum ada gambar detail."
                 />
+                <label className={labelClass}>
+                  URL Gambar Detail (opsional)
+                  <input
+                    className={inputClass}
+                    value={productForm.detailImage}
+                    onChange={(event) => setProductForm((prev) => ({ ...prev, detailImage: event.target.value }))}
+                    placeholder="https://cdn.example.com/product-detail.jpg"
+                  />
+                </label>
                 <div className={styles.mediaActions}>
                   <label className={styles.uploadButton}>
                     Upload Gambar Detail

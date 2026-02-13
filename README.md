@@ -98,6 +98,7 @@ Lokasi file: `apps/frontend/.env.local`
 | `ADMIN_SEED_PASSWORD` | `Admin123#` | Password admin awal (seed) |
 | `ADMIN_SEED_ROLE` | `admin` | Role admin (saat ini hanya `admin`) |
 | `ADMIN_SESSION_SECRET` | - | Secret cookie session admin (wajib kuat di production) |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Base URL publik untuk metadata OpenGraph/Twitter (isi domain production di Vercel) |
 
 ## Setup MongoDB (Disarankan Untuk Production)
 
@@ -185,10 +186,29 @@ Catatan:
 
 ### Vercel
 
-- Root directory: `apps/frontend`
-- Build command: `npm run build`
-- Start command: `npm run start` (default Next.js)
-- Set semua env di dashboard Vercel (terutama Mongo dan session secret)
+1. Import repository ini ke Vercel.
+2. Pada Project Settings, set `Root Directory` ke `apps/frontend`.
+3. Gunakan command default dari `apps/frontend/vercel.json`:
+   - Install: `npm install`
+   - Build: `npm run build`
+4. Tambahkan environment variables berikut di Vercel:
+   - `CONTENT_STORE_DRIVER=mongo`
+   - `MONGODB_URI=<mongodb-atlas-uri>`
+   - `MONGODB_DB_NAME=aurelux_beauty` (atau nama DB Anda)
+   - `MONGODB_PRODUCTS_COLLECTION=products`
+   - `MONGODB_SETTINGS_COLLECTION=site_settings`
+   - `MONGODB_SETTINGS_DOCUMENT_ID=main`
+   - `MONGODB_MEDIA_COLLECTION=media_assets`
+   - `MONGODB_ACTIVITY_COLLECTION=activity_logs`
+   - `MONGODB_ADMINS_COLLECTION=admins`
+   - `ADMIN_SESSION_SECRET=<secret-random-minimal-32-karakter>`
+   - `NEXT_PUBLIC_APP_URL=https://domain-anda.com`
+5. Redeploy setelah env tersimpan.
+
+Catatan penting untuk media upload di Vercel:
+- Upload file ke `public/uploads` tidak persisten di environment serverless Vercel.
+- Admin tetap bisa mengisi media dengan URL eksternal (CDN/object storage) langsung dari form admin.
+- Jika perlu upload file langsung dari panel admin di production, integrasikan object storage (mis. Vercel Blob, S3, Cloudinary).
 
 ### VPS / Node Server
 
