@@ -7,7 +7,7 @@ export default function ProductsSection({
   onOpenProduct,
 }) {
   const primaryButtonClass =
-    "inline-flex min-h-[42px] items-center justify-center rounded-full border border-transparent bg-[linear-gradient(100deg,#1f7a3f,#239149)] px-5 text-[0.92rem] font-semibold text-white shadow-[0_8px_18px_rgba(35,145,73,0.3)] transition duration-200 hover:-translate-y-px";
+    "inline-flex min-h-[42px] items-center justify-center gap-2 rounded-full border border-transparent bg-[linear-gradient(100deg,#1f7a3f,#239149)] px-5 text-[0.92rem] font-semibold text-white shadow-[0_8px_18px_rgba(35,145,73,0.3)] transition duration-200 hover:-translate-y-px";
   const ghostButtonClass =
     "inline-flex min-h-[42px] items-center justify-center rounded-full border border-[rgba(181,140,55,0.72)] bg-white/90 px-5 text-[0.92rem] font-semibold text-[#8e6f26] transition duration-200 hover:-translate-y-px";
 
@@ -106,7 +106,14 @@ export default function ProductsSection({
                       `Halo, saya ingin pesan ${product.fullName || product.name}.`,
                     )}
                   >
-                    Pesan via WhatsApp
+                    <Image
+                      src="/logo/whatsapp.png"
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="h-[18px] w-[18px] object-contain"
+                    />
+                    <span>Hubungi via WhatsApp</span>
                   </a>
                 </div>
               </div>

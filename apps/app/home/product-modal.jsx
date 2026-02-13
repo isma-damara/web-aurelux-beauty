@@ -66,13 +66,20 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
           <p className="leading-[1.6] text-ink-700">{product.usage}</p>
 
           <a
-            className="mt-4 inline-flex min-h-[42px] items-center justify-center rounded-full border border-transparent bg-[linear-gradient(100deg,#1f7a3f,#239149)] px-5 text-[0.92rem] font-semibold text-white shadow-[0_8px_18px_rgba(35,145,73,0.3)] transition duration-200 hover:-translate-y-px"
+            className="mt-4 inline-flex min-h-[42px] items-center justify-center gap-2 rounded-full border border-transparent bg-[linear-gradient(100deg,#1f7a3f,#239149)] px-5 text-[0.92rem] font-semibold text-white shadow-[0_8px_18px_rgba(35,145,73,0.3)] transition duration-200 hover:-translate-y-px"
             href={buildWhatsAppLink(
               contactWhatsApp,
               `Halo, saya ingin pesan ${product.fullName || product.name}.`,
             )}
           >
-            Pesan via WhatsApp
+            <Image
+              src="/logo/whatsapp.png"
+              alt=""
+              width={18}
+              height={18}
+              className="h-[18px] w-[18px] object-contain"
+            />
+            <span>Hubungi via WhatsApp</span>
           </a>
         </div>
       </div>

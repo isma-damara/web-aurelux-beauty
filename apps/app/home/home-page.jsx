@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AboutSection from "./about-section";
 import ContactSection from "./contact-section";
@@ -258,11 +259,18 @@ export default function HomePage({ content }) {
       />
 
       <a
-        className="fixed bottom-4 right-4 z-30 inline-flex min-h-[50px] items-center justify-center rounded-full bg-[linear-gradient(110deg,#1f7a3f,#239149)] px-4 text-[0.86rem] font-bold tracking-[0.01em] text-white shadow-[0_10px_24px_rgba(35,145,73,0.4)] max-md:bottom-3 max-md:right-3"
+        className="fixed bottom-4 right-4 z-30 inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-[linear-gradient(110deg,#1f7a3f,#239149)] px-4 text-[0.86rem] font-bold tracking-[0.01em] text-white shadow-[0_10px_24px_rgba(35,145,73,0.4)] max-md:bottom-3 max-md:right-3"
         href={defaultWhatsAppLink}
         aria-label="WhatsApp"
       >
-        WhatsApp
+        <Image
+          src="/logo/whatsapp.png"
+          alt=""
+          width={18}
+          height={18}
+          className="h-[18px] w-[18px] object-contain"
+        />
+        <span>WhatsApp</span>
       </a>
 
       <ProductModal
