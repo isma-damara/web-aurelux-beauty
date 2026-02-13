@@ -83,22 +83,22 @@ npm run dev
 
 Lokasi file: `apps/.env.local`
 
-| Variable | Default | Keterangan |
-|---|---|---|
-| `CONTENT_STORE_DRIVER` | `mongo` | Wajib `mongo` (runtime mongo-only) |
-| `MONGODB_URI` | `mongodb://localhost:27017` | URI koneksi MongoDB |
-| `MONGODB_DB_NAME` | `aurelux_beauty` | Nama database |
-| `MONGODB_PRODUCTS_COLLECTION` | `products` | Collection produk |
-| `MONGODB_SETTINGS_COLLECTION` | `site_settings` | Collection settings konten |
-| `MONGODB_SETTINGS_DOCUMENT_ID` | `main` | ID dokumen settings tunggal |
-| `MONGODB_MEDIA_COLLECTION` | `media_assets` | Collection metadata media |
-| `MONGODB_ACTIVITY_COLLECTION` | `activity_logs` | Collection activity log |
-| `MONGODB_ADMINS_COLLECTION` | `admins` | Collection akun admin |
-| `ADMIN_SEED_EMAIL` | `admin@aurelux.local` | Email admin awal (seed) |
-| `ADMIN_SEED_PASSWORD` | `Admin123#` | Password admin awal (seed) |
-| `ADMIN_SEED_ROLE` | `admin` | Role admin (saat ini hanya `admin`) |
-| `ADMIN_SESSION_SECRET` | - | Secret cookie session admin (wajib kuat di production) |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Base URL publik untuk metadata OpenGraph/Twitter (isi domain production di Vercel) |
+| Variable                       | Default                     | Keterangan                                                                         |
+| ------------------------------ | --------------------------- | ---------------------------------------------------------------------------------- |
+| `CONTENT_STORE_DRIVER`         | `mongo`                     | Wajib `mongo` (runtime mongo-only)                                                 |
+| `MONGODB_URI`                  | `mongodb://localhost:27017` | URI koneksi MongoDB                                                                |
+| `MONGODB_DB_NAME`              | `aurelux_beauty`            | Nama database                                                                      |
+| `MONGODB_PRODUCTS_COLLECTION`  | `products`                  | Collection produk                                                                  |
+| `MONGODB_SETTINGS_COLLECTION`  | `site_settings`             | Collection settings konten                                                         |
+| `MONGODB_SETTINGS_DOCUMENT_ID` | `main`                      | ID dokumen settings tunggal                                                        |
+| `MONGODB_MEDIA_COLLECTION`     | `media_assets`              | Collection metadata media                                                          |
+| `MONGODB_ACTIVITY_COLLECTION`  | `activity_logs`             | Collection activity log                                                            |
+| `MONGODB_ADMINS_COLLECTION`    | `admins`                    | Collection akun admin                                                              |
+| `ADMIN_SEED_EMAIL`             | `admin@aurelux.local`       | Email admin awal (seed)                                                            |
+| `ADMIN_SEED_PASSWORD`          | `Admin123#`                 | Password admin awal (seed)                                                         |
+| `ADMIN_SEED_ROLE`              | `admin`                     | Role admin (saat ini hanya `admin`)                                                |
+| `ADMIN_SESSION_SECRET`         | -                           | Secret cookie session admin (wajib kuat di production)                             |
+| `NEXT_PUBLIC_APP_URL`          | `http://localhost:3000`     | Base URL publik untuk metadata OpenGraph/Twitter (isi domain production di Vercel) |
 
 ## Setup MongoDB (Disarankan Untuk Production)
 
@@ -136,18 +136,19 @@ CONTENT_STORE_DRIVER=mongo
 7. Restart dev server.
 
 Catatan:
+
 - Data settings/produk/admin dibaca dan ditulis ke MongoDB.
 - File media upload tetap di filesystem (`public/uploads`), sedangkan metadata disimpan di collection `media_assets`.
 
 ## Model Data MongoDB
 
-| Collection | Fungsi |
-|---|---|
-| `products` | Data produk (nama, USP, deskripsi, ingredients, usage, media) |
-| `site_settings` | Hero/banner, about, contact, socials, footer |
-| `media_assets` | Metadata file media upload + relasi penggunaan |
-| `activity_logs` | Log aktivitas admin di API |
-| `admins` | User admin + password hash + status aktif |
+| Collection      | Fungsi                                                        |
+| --------------- | ------------------------------------------------------------- |
+| `products`      | Data produk (nama, USP, deskripsi, ingredients, usage, media) |
+| `site_settings` | Hero/banner, about, contact, socials, footer                  |
+| `media_assets`  | Metadata file media upload + relasi penggunaan                |
+| `activity_logs` | Log aktivitas admin di API                                    |
+| `admins`        | User admin + password hash + status aktif                     |
 
 ## Auth & Akses Admin
 
@@ -159,15 +160,15 @@ Catatan:
 
 ## Scripts (`apps/`)
 
-| Script | Fungsi |
-|---|---|
-| `npm run dev` | Menjalankan frontend dev server |
-| `npm run build` | Build production frontend |
-| `npm run start` | Menjalankan hasil build frontend |
-| `npm run lint` | Lint frontend |
-| `npm run check:mongo` | Cek koneksi MongoDB |
-| `npm run setup:mongo:schema` | Setup validator + index MongoDB |
-| `npm run setup:mongo:admin` | Seed/update akun admin |
+| Script                          | Fungsi                               |
+| ------------------------------- | ------------------------------------ |
+| `npm run dev`                   | Menjalankan frontend dev server      |
+| `npm run build`                 | Build production frontend            |
+| `npm run start`                 | Menjalankan hasil build frontend     |
+| `npm run lint`                  | Lint frontend                        |
+| `npm run check:mongo`           | Cek koneksi MongoDB                  |
+| `npm run setup:mongo:schema`    | Setup validator + index MongoDB      |
+| `npm run setup:mongo:admin`     | Seed/update akun admin               |
 | `npm run migrate:content:mongo` | Migrasi konten local JSON ke MongoDB |
 
 ## Troubleshooting Singkat
@@ -205,6 +206,7 @@ Catatan:
 5. Redeploy setelah env tersimpan.
 
 Catatan penting untuk media upload di Vercel:
+
 - Upload file ke `public/uploads` tidak persisten di environment serverless Vercel.
 - Admin tetap bisa mengisi media dengan URL eksternal (CDN/object storage) langsung dari form admin.
 - Jika perlu upload file langsung dari panel admin di production, integrasikan object storage (mis. Vercel Blob, S3, Cloudinary).
