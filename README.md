@@ -7,7 +7,7 @@ Monorepo untuk website katalog Aurelux Beauty (public site) dan admin panel peng
 - Frontend: Next.js 14 (App Router), React 18, Tailwind CSS
 - Admin panel: route `/admin` dengan login berbasis MongoDB
 - Konten: MongoDB (`CONTENT_STORE_DRIVER=mongo`, runtime mongo-only)
-- Media upload: disimpan ke `apps/frontend/public/uploads`
+- Media upload: disimpan ke `apps/public/uploads`
 
 ## Fitur Utama
 
@@ -34,17 +34,15 @@ Monorepo untuk website katalog Aurelux Beauty (public site) dan admin panel peng
 ```text
 aurelux-beauty/
 |-- apps/
-|   |-- frontend/                      # Next.js app aktif
-|   |   |-- app/
-|   |   |   |-- page.js               # Home page entry
-|   |   |   |-- home/                 # Komponen halaman home
-|   |   |   |-- admin/                # Halaman admin panel
-|   |   |   `-- api/admin/            # API admin (auth/content/products/media/settings)
-|   |   |-- lib/                      # Content store, mongo client, auth, media
-|   |   |-- scripts/                  # Setup schema/admin/migrasi mongo
-|   |   |-- data/site-content.json    # Arsip konten awal untuk migrasi ke MongoDB
-|   |   `-- public/                   # Aset statis + uploads
-|   `-- backend/                      # Placeholder (belum dipakai)
+|   |-- app/
+|   |   |-- page.js                   # Home page entry
+|   |   |-- home/                     # Komponen halaman home
+|   |   |-- admin/                    # Halaman admin panel
+|   |   `-- api/admin/                # API admin (auth/content/products/media/settings)
+|   |-- lib/                          # Content store, mongo client, auth, media
+|   |-- scripts/                      # Setup schema/admin/migrasi mongo
+|   |-- data/site-content.json        # Arsip konten awal untuk migrasi ke MongoDB
+|   `-- public/                       # Aset statis + uploads
 `-- docs/                             # Dokumen konsep & HLD
 ```
 
@@ -56,21 +54,23 @@ aurelux-beauty/
 
 ## Quick Start (Lokal)
 
-1. Install dependency frontend:
+1. Install dependency:
 
 ```bash
-npm run install:frontend
+cd apps
+npm install
 ```
 
 2. Salin env:
 
 ```powershell
-Copy-Item apps/frontend/.env.example apps/frontend/.env.local
+Copy-Item apps/.env.example apps/.env.local
 ```
 
 3. Jalankan app:
 
 ```bash
+cd apps
 npm run dev
 ```
 
@@ -81,7 +81,7 @@ npm run dev
 
 ## Konfigurasi Environment
 
-Lokasi file: `apps/frontend/.env.local`
+Lokasi file: `apps/.env.local`
 
 | Variable | Default | Keterangan |
 |---|---|---|
@@ -157,7 +157,7 @@ Catatan:
 - Session disimpan pada cookie httpOnly `aurelux_admin_session`
 - Role yang diizinkan saat ini: `admin`
 
-## Scripts (Root)
+## Scripts (`apps/`)
 
 | Script | Fungsi |
 |---|---|
@@ -165,7 +165,6 @@ Catatan:
 | `npm run build` | Build production frontend |
 | `npm run start` | Menjalankan hasil build frontend |
 | `npm run lint` | Lint frontend |
-| `npm run install:frontend` | Install dependency frontend |
 | `npm run check:mongo` | Cek koneksi MongoDB |
 | `npm run setup:mongo:schema` | Setup validator + index MongoDB |
 | `npm run setup:mongo:admin` | Seed/update akun admin |
@@ -174,9 +173,9 @@ Catatan:
 ## Troubleshooting Singkat
 
 - Error `Module not found: Can't resolve 'mongodb'`:
-  jalankan `npm run install:frontend`.
+  jalankan `cd apps && npm install`.
 - Muncul error `Aplikasi dikunci ke MongoDB`:
-  set `CONTENT_STORE_DRIVER=mongo` di `apps/frontend/.env.local`.
+  set `CONTENT_STORE_DRIVER=mongo` di `apps/.env.local`.
 - Login admin gagal:
   pastikan `setup:mongo:admin` sudah dijalankan dan koleksi `admins` terisi.
 - Install npm gagal karena proxy/offline:
@@ -187,8 +186,8 @@ Catatan:
 ### Vercel
 
 1. Import repository ini ke Vercel.
-2. Pada Project Settings, set `Root Directory` ke `apps/frontend`.
-3. Gunakan command default dari `apps/frontend/vercel.json`:
+2. Pada Project Settings, set `Root Directory` ke `apps`.
+3. Gunakan command default dari `apps/vercel.json`:
    - Install: `npm install`
    - Build: `npm run build`
 4. Tambahkan environment variables berikut di Vercel:
@@ -213,7 +212,8 @@ Catatan penting untuk media upload di Vercel:
 ### VPS / Node Server
 
 ```bash
-npm run install:frontend
+cd apps
+npm install
 npm run build
 npm run start
 ```
