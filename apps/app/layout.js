@@ -4,8 +4,7 @@ function resolveMetadataBase() {
   const candidates = [
     process.env.NEXT_PUBLIC_APP_URL,
     process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "",
-    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
-    "http://localhost:3000"
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ""
   ];
 
   for (const candidate of candidates) {
@@ -18,6 +17,12 @@ function resolveMetadataBase() {
     } catch (_error) {
       // Skip malformed URL and continue to next fallback.
     }
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Metadata base URL tidak valid di production. Set NEXT_PUBLIC_APP_URL (contoh: https://domain-anda.com)."
+    );
   }
 
   return new URL("http://localhost:3000");
