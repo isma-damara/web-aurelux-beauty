@@ -34,7 +34,7 @@ export default function ProductsSection({
           products.map((product) => (
             <article
               key={product.id}
-              className="group overflow-hidden rounded-[24px] bg-white shadow-[0_18px_34px_rgba(31,35,33,0.08)]"
+              className="group flex h-full flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_18px_34px_rgba(31,35,33,0.08)]"
             >
               <div className="relative aspect-square overflow-hidden bg-[linear-gradient(180deg,#f7f5ef_0%,#f0ece1_100%)]">
                 <div className="absolute inset-0 overflow-hidden rounded-2xl">
@@ -54,27 +54,6 @@ export default function ProductsSection({
                       Gambar produk belum tersedia
                     </div>
                   )}
-                </div>
-                <div className="absolute inset-0 hidden flex-col justify-end gap-3 bg-[linear-gradient(180deg,rgba(15,18,17,0.03),rgba(15,18,17,0.62))] p-5 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
-                  <p>{product.fullName || product.name}</p>
-                  <div className="flex flex-wrap gap-2.5">
-                    <button
-                      className={ghostButtonClass}
-                      type="button"
-                      onClick={() => onOpenProduct(product)}
-                    >
-                      Quick View
-                    </button>
-                    <a
-                      className={primaryButtonClass}
-                      href={buildWhatsAppLink(
-                        contactWhatsApp,
-                        `Halo, saya ingin pesan ${product.fullName || product.name}.`,
-                      )}
-                    >
-                      Pesan via WhatsApp
-                    </a>
-                  </div>
                 </div>
                 <div className="absolute bottom-3 right-3 z-[3] flex items-center gap-2">
                   {[
@@ -97,7 +76,7 @@ export default function ProductsSection({
                 </div>
               </div>
 
-              <div className="px-[22px] pb-[26px] pt-[22px] text-center">
+              <div className="flex flex-1 flex-col px-[22px] pb-[26px] pt-[22px] text-center">
                 <h3 className="font-brand text-[clamp(1.65rem,3.3vw,2.25rem)] leading-[1.12]">
                   {product.name}
                 </h3>
@@ -112,7 +91,7 @@ export default function ProductsSection({
                     </li>
                   ))}
                 </ul>
-                <div className="mt-[18px] flex flex-wrap justify-center gap-2.5 md:hidden [&>*]:flex-1">
+                <div className="mt-auto flex flex-wrap justify-center gap-2.5 border-t border-[rgba(31,35,33,0.08)] pt-4 [&>*]:flex-1">
                   <button
                     className={ghostButtonClass}
                     type="button"
