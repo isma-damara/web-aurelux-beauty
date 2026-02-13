@@ -1,3 +1,5 @@
+import { MongoClient } from "mongodb";
+
 let sharedClientPromise = null;
 
 function getMongoUriOrThrow() {
@@ -8,19 +10,8 @@ function getMongoUriOrThrow() {
   return uri;
 }
 
-async function loadMongoClientClass() {
-  try {
-    const dynamicImport = new Function("moduleName", "return import(moduleName);");
-    const mongoModule = await dynamicImport("mongodb");
-    return mongoModule.MongoClient;
-  } catch (_error) {
-    throw new Error('Package "mongodb" belum terinstall. Jalankan: npm run install:frontend');
-  }
-}
-
 async function buildClientPromise() {
   const uri = getMongoUriOrThrow();
-  const MongoClient = await loadMongoClientClass();
   const client = new MongoClient(uri);
   return client.connect();
 }
