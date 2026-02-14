@@ -42,10 +42,9 @@ const styles = {
   tableUsp: "truncate whitespace-nowrap text-[0.83rem] text-gray-500",
   inlineActions: "flex gap-1.5",
   helperText: "m-0 text-[0.84rem] text-gray-500",
-  modalBackdrop: "fixed inset-0 z-[90] grid place-items-center bg-[rgba(18,20,19,0.68)] p-5 animate-fade-in",
   modalCard:
-    "grid max-h-[92vh] w-[min(860px,100%)] gap-3 overflow-auto rounded-2xl border border-white/50 bg-white/90 p-[14px] shadow-[0_20px_50px_rgba(15,23,42,0.28)] backdrop-blur-sm animate-quick-view-in max-[860px]:p-3",
-  modalHeader: "flex items-center justify-between gap-2.5",
+    "mt-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/65 p-[14px] max-[860px]:p-3",
+  modalHeader: "flex items-center gap-2.5",
   formGrid: "grid grid-cols-2 gap-2.5 max-[860px]:grid-cols-1",
   fullWidth: "col-span-2 max-[860px]:col-span-1",
   mediaBlock: "grid gap-2 rounded-[10px] border border-dashed border-gray-300 p-2.5",
@@ -67,7 +66,6 @@ const textareaClass =
 
 const EMPTY_PRODUCT_FORM = {
   name: "",
-  fullName: "",
   cardImage: "",
   detailImage: "",
   usp: "",
@@ -93,8 +91,7 @@ function textToList(value) {
 
 function mapProductToForm(product) {
   return {
-    name: product?.name ?? "",
-    fullName: product?.fullName ?? "",
+    name: product?.name ?? product?.fullName ?? "",
     cardImage: product?.cardImage ?? "",
     detailImage: product?.detailImage ?? "",
     usp: product?.usp ?? "",
@@ -106,9 +103,10 @@ function mapProductToForm(product) {
 }
 
 function mapFormToProductPayload(form) {
+  const productName = form.name.trim();
   return {
-    name: form.name.trim(),
-    fullName: form.fullName.trim(),
+    name: productName,
+    fullName: productName,
     cardImage: form.cardImage.trim(),
     detailImage: form.detailImage.trim(),
     usp: form.usp.trim(),
@@ -169,19 +167,6 @@ export default function AdminProductsPage() {
     loadProducts();
   }, []);
 
-  useEffect(() => {
-    if (!isFormOpen) {
-      return undefined;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isFormOpen]);
-
   const onResetForm = () => {
     setEditingProductId("");
     setProductForm(EMPTY_PRODUCT_FORM);
@@ -210,8 +195,8 @@ export default function AdminProductsPage() {
 
     try {
       const payload = mapFormToProductPayload(productForm);
-      if (!payload.name || !payload.fullName) {
-        throw new Error("Nama produk dan nama lengkap wajib diisi.");
+      if (!payload.name) {
+        throw new Error("Nama produk wajib diisi.");
       }
 
       if (editingProductId) {
@@ -240,7 +225,7 @@ export default function AdminProductsPage() {
   };
 
   const onDeleteProduct = async (product) => {
-    const isConfirmed = window.confirm(`Hapus produk "${product.fullName || product.name}"?`);
+    const isConfirmed = window.confirm(`Hapus produk "${product.name || product.fullName}"?`);
     if (!isConfirmed) {
       return;
     }
@@ -342,10 +327,10 @@ export default function AdminProductsPage() {
           {products.length === 0 ? (
             <p className={styles.empty}>Belum ada produk.</p>
           ) : (
-            products.map((product) => (
+            products.map((product, index) => (
               <article key={product.id} className={styles.tableRow}>
-                <span className={styles.tableCode}>#{product.id}</span>
-                <span className={styles.tableName}>{product.fullName || product.name}</span>
+                <span className={styles.tableCode}>#PROD{index + 1}</span>
+                <span className={styles.tableName}>{product.name || product.fullName}</span>
                 <span className={styles.tableUsp}>{product.usp}</span>
                 <span className={styles.inlineActions}>
                   <button type="button" className={styles.editButton} onClick={() => onEditProduct(product)}>
@@ -359,29 +344,11 @@ export default function AdminProductsPage() {
             ))
           )}
         </div>
-      </section>
 
-      <section className={styles.card}>
-        <h2 className="m-0 text-[0.98rem] text-gray-900">Catatan Manajemen Gambar</h2>
-        <p className={styles.helperText}>
-          Manajemen gambar produk sudah terintegrasi di form produk. Media ditampilkan sebagai preview agar admin lebih
-          mudah mengecek hasil upload.
-        </p>
-      </section>
-
-      {isFormOpen ? (
-        <div className={styles.modalBackdrop} onClick={onCloseFormModal}>
-          <section className={styles.modalCard} onClick={(event) => event.stopPropagation()}>
+        {isFormOpen ? (
+          <section className={styles.modalCard}>
             <div className={styles.modalHeader}>
               <h2 className="m-0 text-base">{titleText}</h2>
-              <div className={styles.buttonRow}>
-                <button type="submit" form="admin-product-form" className={styles.primaryButton} disabled={isSaving}>
-                  {isSaving ? "Menyimpan..." : editingProductId ? "Simpan Perubahan" : "Simpan Produk"}
-                </button>
-                <button type="button" className={styles.ghostButton} onClick={onCloseFormModal} disabled={isSaving}>
-                  Tutup
-                </button>
-              </div>
             </div>
 
             <form id="admin-product-form" onSubmit={onSubmitProduct} className={styles.formGrid}>
@@ -392,16 +359,6 @@ export default function AdminProductsPage() {
                   value={productForm.name}
                   onChange={(event) => setProductForm((prev) => ({ ...prev, name: event.target.value }))}
                   placeholder="Brightening Face Spray Toner"
-                />
-              </label>
-
-              <label className={labelClass}>
-                Nama Lengkap Produk
-                <input
-                  className={inputClass}
-                  value={productForm.fullName}
-                  onChange={(event) => setProductForm((prev) => ({ ...prev, fullName: event.target.value }))}
-                  placeholder="Aurelux Brightening Face Spray Toner"
                 />
               </label>
 
@@ -461,7 +418,7 @@ export default function AdminProductsPage() {
                 <p className={styles.mediaLabel}>Gambar Card</p>
                 <MediaPreview
                   url={productForm.cardImage}
-                  alt={productForm.fullName || productForm.name || "Gambar card produk"}
+                  alt={productForm.name || "Gambar card produk"}
                   emptyText="Belum ada gambar card."
                 />
                 <label className={labelClass}>
@@ -498,7 +455,7 @@ export default function AdminProductsPage() {
                 <p className={styles.mediaLabel}>Gambar Detail</p>
                 <MediaPreview
                   url={productForm.detailImage}
-                  alt={productForm.fullName || productForm.name || "Gambar detail produk"}
+                  alt={productForm.name || "Gambar detail produk"}
                   emptyText="Belum ada gambar detail."
                 />
                 <label className={labelClass}>
@@ -531,11 +488,29 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
+              <div className={`${styles.fullWidth} border-t border-slate-200 pt-2`}>
+                <div className={styles.buttonRow}>
+                  <button type="submit" form="admin-product-form" className={styles.primaryButton} disabled={isSaving}>
+                    {isSaving ? "Menyimpan..." : editingProductId ? "Simpan Perubahan" : "Simpan Produk"}
+                  </button>
+                  <button type="button" className={styles.ghostButton} onClick={onCloseFormModal} disabled={isSaving}>
+                    Batal
+                  </button>
+                </div>
+              </div>
             </form>
-
           </section>
-        </div>
-      ) : null}
+        ) : null}
+      </section>
+
+      <section className={styles.card}>
+        <h2 className="m-0 text-[0.98rem] text-gray-900">Catatan Manajemen Gambar</h2>
+        <p className={styles.helperText}>
+          Manajemen gambar produk sudah terintegrasi di form produk. Media ditampilkan sebagai preview agar admin lebih
+          mudah mengecek hasil upload.
+        </p>
+      </section>
+
     </div>
   );
 }

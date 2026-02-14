@@ -8,7 +8,7 @@
   },
   "products": [
     {
-      "id": "toner",
+      "id": "PROD1",
       "name": "Brightening Face Spray Toner",
       "fullName": "Aurelux Brightening Face Spray Toner",
       "cardImage": "/product/product1.jpeg",
@@ -30,7 +30,7 @@
       "usage": "Semprotkan merata ke wajah bersih dari jarak 15-20 cm. Gunakan pagi dan malam sebelum moisturizer atau kapan pun kulit terasa membutuhkan hidrasi."
     },
     {
-      "id": "moisturizer",
+      "id": "PROD2",
       "name": "Crystal Bright Moisturizer",
       "fullName": "Aurelux Crystal Bright Moisturizer",
       "cardImage": "/product/product4.jpeg",

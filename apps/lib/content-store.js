@@ -84,23 +84,27 @@ function normalizeHighlights(value) {
     .filter((item) => item.value || item.label);
 }
 
-function slugify(value, fallback = "product") {
-  const normalized = toStringValue(value)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+function normalizeProductId(value, index = 0) {
+  const raw = toStringValue(value).replace(/^#/, "").trim();
+  if (!raw) {
+    return `PROD${index + 1}`;
+  }
 
-  return normalized || fallback;
+  const prodMatch = raw.match(/^prod[\s_-]*(\d+)$/i);
+  if (prodMatch) {
+    return `PROD${Number(prodMatch[1])}`;
+  }
+
+  return raw;
 }
 
 export function normalizeProduct(product, index = 0) {
-  const idCandidate = toStringValue(product?.id) || toStringValue(product?.fullName) || toStringValue(product?.name);
-  const fallbackId = `product-${index + 1}`;
+  const normalizedName = toStringValue(product?.name) || toStringValue(product?.fullName);
 
   return {
-    id: slugify(idCandidate, fallbackId),
-    name: toStringValue(product?.name),
-    fullName: toStringValue(product?.fullName) || toStringValue(product?.name),
+    id: normalizeProductId(product?.id, index),
+    name: normalizedName,
+    fullName: toStringValue(product?.fullName) || normalizedName,
     cardImage: toStringValue(product?.cardImage),
     detailImage: toStringValue(product?.detailImage, toStringValue(product?.cardImage)),
     usp: toStringValue(product?.usp),

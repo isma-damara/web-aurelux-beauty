@@ -24,6 +24,27 @@ function normalizeActor(actor) {
   return DEFAULT_ACTOR;
 }
 
+async function getNextProductCode(productsCollection) {
+  const docs = await productsCollection.find({ isDeleted: { $ne: true } }, { projection: { _id: 1 } }).toArray();
+  const maxUsedNumber = docs.reduce((highest, doc) => {
+    const match = String(doc?._id || "").match(/^PROD(\d+)$/i);
+    if (!match) {
+      return highest;
+    }
+    return Math.max(highest, Number(match[1]));
+  }, 0);
+
+  let candidate = maxUsedNumber + 1;
+  while (true) {
+    const candidateId = `PROD${candidate}`;
+    const exists = await productsCollection.findOne({ _id: candidateId }, { projection: { _id: 1 } });
+    if (!exists) {
+      return candidateId;
+    }
+    candidate += 1;
+  }
+}
+
 async function getCollections() {
   const db = await getMongoDb();
   return {
@@ -273,22 +294,12 @@ export async function createProductInMongo(payload, options = {}) {
   const actor = normalizeActor(options?.actor);
   const normalized = normalizeProduct(payload, 0);
 
-  if (!normalized.name || !normalized.fullName) {
-    throw new Error("Nama produk dan nama lengkap wajib diisi.");
+  if (!normalized.name) {
+    throw new Error("Nama produk wajib diisi.");
   }
 
   const { products } = await getCollections();
-  let nextId = normalized.id;
-  let counter = 2;
-
-  while (true) {
-    const exists = await products.findOne({ _id: nextId }, { projection: { _id: 1 } });
-    if (!exists) {
-      break;
-    }
-    nextId = `${normalized.id}-${counter}`;
-    counter += 1;
-  }
+  const nextId = await getNextProductCode(products);
 
   const last = await products.find({ isDeleted: { $ne: true } }).sort({ sortOrder: -1 }).limit(1).toArray();
   const sortOrder = (last[0]?.sortOrder || 0) + 10;

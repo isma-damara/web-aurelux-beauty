@@ -14,6 +14,14 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
       role="presentation"
       onClick={onClose}
     >
+      <button
+        className="absolute right-4 top-4 z-[90] grid h-11 w-11 place-items-center rounded-full border border-[rgba(255,255,255,0.45)] bg-[rgba(18,20,19,0.68)] text-[1.1rem] font-semibold leading-none text-white transition duration-200 hover:scale-[1.04] md:hidden"
+        type="button"
+        onClick={onClose}
+        aria-label="Close modal"
+      >
+        X
+      </button>
       <div
         className="relative grid w-[min(980px,100%)] max-h-[90vh] grid-cols-[minmax(300px,47%)_minmax(0,1fr)] overflow-auto rounded-[22px] bg-white opacity-100 animate-quick-view-in max-md:max-h-full max-md:w-full max-md:grid-cols-1 max-md:rounded-2xl"
         role="dialog"
@@ -22,7 +30,7 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
         onClick={(event) => event.stopPropagation()}
       >
         <button
-          className="absolute right-[14px] top-[14px] z-10 grid h-10 w-10 place-items-center rounded-full border-0 bg-white/90 text-[1.28rem] leading-none text-gold-500 transition duration-200 hover:scale-[1.04] hover:bg-white"
+          className="absolute right-[14px] top-[14px] z-10 hidden h-10 w-10 place-items-center rounded-full border-0 bg-white/90 text-[1.28rem] leading-none text-gold-500 transition duration-200 hover:scale-[1.04] hover:bg-white md:grid"
           type="button"
           onClick={onClose}
           aria-label="Close modal"

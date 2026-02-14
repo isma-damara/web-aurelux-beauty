@@ -96,8 +96,8 @@ export function resolveContentData(content) {
     footer,
     products: products.map((item, index) => ({
       ...item,
-      id: toStringValue(item?.id, `product-${index + 1}`),
-      name: toStringValue(item?.name),
+      id: toStringValue(item?.id, `PROD${index + 1}`),
+      name: toStringValue(item?.name, toStringValue(item?.fullName)),
       fullName: toStringValue(item?.fullName, toStringValue(item?.name)),
       cardImage: toStringValue(item?.cardImage),
       detailImage: toStringValue(item?.detailImage, toStringValue(item?.cardImage)),

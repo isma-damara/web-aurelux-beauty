@@ -245,7 +245,7 @@ export default function HomePage({ content }) {
           contactWhatsApp={resolved.contact.whatsapp}
           onOpenProduct={setActiveProduct}
         />
-        <AboutSection about={resolved.about} />
+        <AboutSection about={resolved.about} productCount={resolved.products.length} />
         <ContactSection
           contact={resolved.contact}
           defaultWhatsAppLink={defaultWhatsAppLink}

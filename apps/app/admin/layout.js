@@ -82,15 +82,18 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f6f7f9_0%,#eef1f5_100%)] text-slate-900">
-      <div className="mx-auto grid min-h-screen w-full max-w-[1500px] grid-cols-[280px_minmax(0,1fr)] gap-4 px-4 py-4 max-[1100px]:grid-cols-1">
-        <aside className="grid grid-rows-[auto_1fr_auto] gap-5 rounded-2xl border border-slate-200 bg-white p-4 text-slate-800 shadow-[0_12px_28px_rgba(15,23,42,0.08)] max-[1100px]:grid-rows-[auto_auto_auto]">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_15%,rgba(32,110,154,0.15),transparent_35%),radial-gradient(circle_at_90%_90%,rgba(36,149,80,0.16),transparent_36%),linear-gradient(180deg,#edf2f8_0%,#f2f6fb_48%,#f3f7f4_100%)] text-slate-900">
+      <div className="pointer-events-none absolute -left-24 top-[-88px] h-[320px] w-[320px] rounded-full bg-[#2f7db5]/16 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-112px] right-[-80px] h-[360px] w-[360px] rounded-full bg-[#21915c]/16 blur-3xl" />
+
+      <div className="relative mx-auto grid min-h-screen w-full max-w-[1540px] grid-cols-[300px_minmax(0,1fr)] gap-5 px-4 py-4 max-[1100px]:grid-cols-1">
+        <aside className="grid grid-rows-[auto_1fr_auto] gap-5 rounded-[26px] border border-white/80 bg-white p-4 text-slate-800 shadow-[0_26px_46px_rgba(15,23,42,0.14)] max-[1100px]:grid-rows-[auto_auto_auto]">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
             <div className="flex items-center gap-2.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              <p className="text-[0.72rem] uppercase tracking-[0.16em] text-slate-500">Aurelux</p>
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <p className="text-[0.72rem] uppercase tracking-[0.18em] text-slate-500">Aurelux</p>
             </div>
-            <p className="mt-2 text-[1.05rem] font-semibold leading-tight">Admin Panel</p>
+            <p className="mt-2 text-[1.08rem] font-semibold leading-tight text-slate-900">Admin Panel</p>
             <p className="mt-1 text-xs text-slate-500">Kelola konten website dari satu dashboard.</p>
           </div>
 
@@ -101,21 +104,23 @@ export default function AdminLayout({ children }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative grid h-[74px] content-center gap-1 rounded-xl border px-3 py-2.5 transition ${
+                  className={`relative grid h-[78px] content-center gap-1 rounded-xl border px-3 py-2.5 transition ${
                     isActive
-                      ? "border-amber-300/45 bg-amber-50 text-slate-900 shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
+                      ? "border-emerald-300/55 bg-emerald-50 text-slate-900 shadow-[0_10px_20px_rgba(15,23,42,0.1)]"
                       : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
-                  {isActive ? <span className="absolute left-0 top-3 h-8 w-[3px] rounded-r bg-amber-300" /> : null}
+                  {isActive ? <span className="absolute left-0 top-3 h-8 w-[3px] rounded-r bg-emerald-400" /> : null}
                   <strong className="text-[0.92rem] font-semibold">{item.label}</strong>
-                  <span className="truncate text-[0.76rem] leading-snug text-slate-500">{item.description}</span>
+                  <span className={`truncate text-[0.76rem] leading-snug ${isActive ? "text-emerald-700" : "text-slate-500"}`}>
+                    {item.description}
+                  </span>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3">
             <p className="text-[0.72rem] uppercase tracking-[0.1em] text-slate-500">Admin User</p>
             <div>
               <p className="mt-1 truncate text-sm font-semibold text-slate-900">{adminUser.email || "-"}</p>
@@ -125,17 +130,17 @@ export default function AdminLayout({ children }) {
         </aside>
 
         <section className="grid gap-4 pb-3 pr-1 pt-1 max-[860px]:pr-0">
-          <header className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.06)] max-[860px]:flex-col max-[860px]:items-stretch">
+          <header className="flex items-center justify-between gap-3 rounded-[24px] border border-white/80 bg-white/86 px-4 py-3.5 shadow-[0_14px_34px_rgba(15,23,42,0.08)] backdrop-blur-sm max-[860px]:flex-col max-[860px]:items-stretch">
             <div>
-              <p className="text-[0.72rem] uppercase tracking-[0.14em] text-slate-400">Admin / {activeMenu.label}</p>
-              <h1 className="mt-1 text-[1.06rem] font-semibold leading-tight text-slate-900">
+              <p className="text-[0.72rem] uppercase tracking-[0.14em] text-slate-500">Admin / {activeMenu.label}</p>
+              <h1 className="mt-1 text-[1.08rem] font-semibold leading-tight text-slate-900">
                 {activeMenu.description}
               </h1>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 max-[860px]:justify-start">
-              <div className="inline-flex min-h-[36px] items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-[0.78rem] font-medium text-emerald-700">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <div className="inline-flex min-h-[36px] items-center gap-2 rounded-lg border border-emerald-200/80 bg-emerald-50 px-3 text-[0.78rem] font-medium text-emerald-700">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.14)]" />
                 <span>System Online</span>
               </div>
               <Link
@@ -157,7 +162,7 @@ export default function AdminLayout({ children }) {
             </div>
           </header>
 
-          <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)] backdrop-blur-sm max-[760px]:p-3">
+          <div className="rounded-[24px] border border-white/70 bg-white/90 p-4 shadow-[0_16px_36px_rgba(15,23,42,0.08)] backdrop-blur-sm max-[760px]:p-3">
             {children}
           </div>
         </section>
