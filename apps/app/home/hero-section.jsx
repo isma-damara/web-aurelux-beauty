@@ -48,7 +48,7 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
         <div className="mt-4 flex items-center gap-3 max-md:hidden">
           <div className="h-[100px] w-[140px]">
             <Image
-              src="/logo/BPOM.png"
+              src="/logo/Bpom.png"
               alt="Logo BPOM"
               width={115}
               height={115}
