@@ -157,7 +157,7 @@ function getMediaTypeFromUrl(url) {
   if (typeof url !== "string") {
     return "image";
   }
-  if (/\/uploads\/videos\//.test(url) || /\/video\/upload\//.test(url) || /\.(mp4|webm|mov)(\?|$)/i.test(url)) {
+  if (/\/uploads\/videos\//.test(url) || /\/videos\//.test(url) || /\.(mp4|webm|mov)(\?|$)/i.test(url)) {
     return "video";
   }
   return "image";

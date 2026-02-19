@@ -13,21 +13,26 @@ test("isAllowedMediaUrl menerima managed local upload path", () => {
   assert.equal(isAllowedMediaUrl("/uploads/videos/example.mp4"), true);
 });
 
-test("isAllowedMediaUrl menerima URL Cloudinary pada cloud yang sama", () => {
-  const previousCloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  process.env.CLOUDINARY_CLOUD_NAME = "demo-cloud";
+test("isAllowedMediaUrl menerima URL Blob yang dikonfigurasi", () => {
+  const previousBase = process.env.BLOB_PUBLIC_BASE_URL;
+  process.env.BLOB_PUBLIC_BASE_URL = "https://demo.public.blob.vercel-storage.com";
 
   try {
     assert.equal(
-      isAllowedMediaUrl("https://res.cloudinary.com/demo-cloud/image/upload/v1/aurelux-beauty/images/sample.jpg"),
+      isAllowedMediaUrl("https://demo.public.blob.vercel-storage.com/aurelux-beauty/images/sample.jpg"),
       true
     );
+    assert.equal(
+      isAllowedMediaUrl("https://other.public.blob.vercel-storage.com/aurelux-beauty/images/sample.jpg"),
+      false
+    );
   } finally {
-    process.env.CLOUDINARY_CLOUD_NAME = previousCloudName;
+    process.env.BLOB_PUBLIC_BASE_URL = previousBase;
   }
 });
 
 test("isAllowedMediaUrl menolak URL arbitrary non-managed", () => {
   assert.equal(isAllowedMediaUrl("https://example.com/manual-link.jpg"), false);
+  assert.equal(isAllowedMediaUrl("https://cdn.example.com/media/images/sample.jpg"), false);
   assert.equal(isAllowedMediaUrl("https://cdn.some-random.com/video.mp4"), false);
 });

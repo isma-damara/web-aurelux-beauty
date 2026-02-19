@@ -7,6 +7,11 @@ import { resolveAdminActor } from "../../../../lib/admin-auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function resolveMediaStorageDriver() {
+  const configured = (process.env.MEDIA_STORAGE_DRIVER || "local").toLowerCase();
+  return configured === "blob" ? "blob" : "local";
+}
+
 export async function POST(request) {
   const { session, unauthorizedResponse } = await requireAdminSession(request);
   if (unauthorizedResponse) {
@@ -14,6 +19,13 @@ export async function POST(request) {
   }
 
   try {
+    if (resolveMediaStorageDriver() === "blob") {
+      return NextResponse.json(
+        { message: "Upload file langsung ke endpoint ini tidak aktif saat MEDIA_STORAGE_DRIVER=blob." },
+        { status: 400 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file");
 

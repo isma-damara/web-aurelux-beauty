@@ -33,6 +33,7 @@ Seluruh data konten utama dijalankan dengan MongoDB (`CONTENT_STORE_DRIVER=mongo
 - React 18
 - Tailwind CSS
 - MongoDB (runtime data store)
+- Vercel Blob (opsional untuk media storage di Vercel)
 
 ## Repository Structure
 
@@ -89,7 +90,8 @@ Lokasi: `apps/.env.local`
 | Variable | Default | Keterangan |
 | --- | --- | --- |
 | `CONTENT_STORE_DRIVER` | `mongo` | Wajib `mongo` |
-| `MEDIA_STORAGE_DRIVER` | `local` | `local` (dev) atau `cloudinary` (production) |
+| `MEDIA_STORAGE_DRIVER` | `local` | `local` atau `blob` |
+| `NEXT_PUBLIC_MEDIA_STORAGE_DRIVER` | `local` | Driver media untuk client upload (`local` atau `blob`) |
 | `MONGODB_URI` | `mongodb://localhost:27017` | URI MongoDB |
 | `MONGODB_DB_NAME` | `aurelux_beauty` | Nama database |
 | `MONGODB_PRODUCTS_COLLECTION` | `products` | Collection produk |
@@ -103,10 +105,10 @@ Lokasi: `apps/.env.local`
 | `ADMIN_SEED_ROLE` | `admin` | Role admin |
 | `ADMIN_SESSION_SECRET` | (required) | Secret cookie session admin |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Base URL publik untuk metadata/link absolut |
-| `CLOUDINARY_CLOUD_NAME` | - | Wajib jika `MEDIA_STORAGE_DRIVER=cloudinary` |
-| `CLOUDINARY_API_KEY` | - | Wajib jika `MEDIA_STORAGE_DRIVER=cloudinary` |
-| `CLOUDINARY_API_SECRET` | - | Wajib jika `MEDIA_STORAGE_DRIVER=cloudinary` |
-| `CLOUDINARY_UPLOAD_FOLDER` | `aurelux-beauty` | Prefix folder upload di Cloudinary |
+| `BLOB_READ_WRITE_TOKEN` | - | Wajib jika `MEDIA_STORAGE_DRIVER=blob` |
+| `BLOB_UPLOAD_FOLDER` | `aurelux-beauty` | Prefix path upload media di Blob |
+| `NEXT_PUBLIC_BLOB_UPLOAD_FOLDER` | `aurelux-beauty` | Prefix path upload media di client |
+| `BLOB_PUBLIC_BASE_URL` | - | Opsional untuk validasi URL Blob yang dianggap managed |
 
 ## MongoDB Setup
 
@@ -178,7 +180,8 @@ Semua dijalankan dari folder `apps/`.
 4. Build command: `npm run build`
 5. Tambahkan environment variables produksi (minimal):
 - `CONTENT_STORE_DRIVER=mongo`
-- `MEDIA_STORAGE_DRIVER=cloudinary`
+- `MEDIA_STORAGE_DRIVER=blob`
+- `NEXT_PUBLIC_MEDIA_STORAGE_DRIVER=blob`
 - `MONGODB_URI=<mongodb-atlas-uri>`
 - `MONGODB_DB_NAME=aurelux_beauty`
 - `MONGODB_PRODUCTS_COLLECTION=products`
@@ -189,14 +192,13 @@ Semua dijalankan dari folder `apps/`.
 - `MONGODB_ADMINS_COLLECTION=admins`
 - `ADMIN_SESSION_SECRET=<strong-random-secret>`
 - `NEXT_PUBLIC_APP_URL=https://domain-anda.com`
-- `CLOUDINARY_CLOUD_NAME=<cloud-name>`
-- `CLOUDINARY_API_KEY=<api-key>`
-- `CLOUDINARY_API_SECRET=<api-secret>`
-- `CLOUDINARY_UPLOAD_FOLDER=aurelux-beauty`
+- `BLOB_READ_WRITE_TOKEN=<vercel-blob-read-write-token>`
+- `BLOB_UPLOAD_FOLDER=aurelux-beauty`
+- `NEXT_PUBLIC_BLOB_UPLOAD_FOLDER=aurelux-beauty`
+- `BLOB_PUBLIC_BASE_URL=https://<store-id>.public.blob.vercel-storage.com` (opsional)
 
 Catatan media upload di Vercel:
-- Upload lokal ke `public/uploads` tidak persisten pada serverless filesystem.
-- Gunakan `MEDIA_STORAGE_DRIVER=cloudinary` agar upload/hapus media persisten.
+- Upload media admin menggunakan direct upload ke Vercel Blob lewat `/api/admin/media/upload`.
 
 ### VPS / Node Server
 
