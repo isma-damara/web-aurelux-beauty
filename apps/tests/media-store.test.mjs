@@ -22,6 +22,35 @@ test("isManagedUploadUrl menerima URL Blob yang dikonfigurasi", () => {
   }
 });
 
+test("isManagedUploadUrl menerima URL Blob saat base URL tanpa protocol atau berupa full URL file", () => {
+  const previousBase = process.env.BLOB_PUBLIC_BASE_URL;
+
+  try {
+    process.env.BLOB_PUBLIC_BASE_URL = "demo.public.blob.vercel-storage.com";
+    assert.equal(isManagedUploadUrl("https://demo.public.blob.vercel-storage.com/aurelux-beauty/images/sample.jpg"), true);
+
+    process.env.BLOB_PUBLIC_BASE_URL =
+      "https://demo.public.blob.vercel-storage.com/aurelux-beauty/images/some-file.jpg";
+    assert.equal(isManagedUploadUrl("https://demo.public.blob.vercel-storage.com/aurelux-beauty/images/other.jpg"), true);
+  } finally {
+    process.env.BLOB_PUBLIC_BASE_URL = previousBase;
+  }
+});
+
+test("isManagedUploadUrl menerima URL Blob public host saat base URL belum diisi", () => {
+  const previousBase = process.env.BLOB_PUBLIC_BASE_URL;
+  process.env.BLOB_PUBLIC_BASE_URL = "";
+
+  try {
+    assert.equal(
+      isManagedUploadUrl("https://fallback.public.blob.vercel-storage.com/aurelux-beauty/images/sample.jpg"),
+      true
+    );
+  } finally {
+    process.env.BLOB_PUBLIC_BASE_URL = previousBase;
+  }
+});
+
 test("isManagedUploadUrl menolak URL eksternal", () => {
   assert.equal(isManagedUploadUrl("https://cdn.example.com/media/images/sample.jpg"), false);
   assert.equal(isManagedUploadUrl("https://example.com/random.jpg"), false);

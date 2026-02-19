@@ -31,6 +31,20 @@ test("isAllowedMediaUrl menerima URL Blob yang dikonfigurasi", () => {
   }
 });
 
+test("isAllowedMediaUrl menerima URL Blob saat base URL belum diisi", () => {
+  const previousBase = process.env.BLOB_PUBLIC_BASE_URL;
+  process.env.BLOB_PUBLIC_BASE_URL = "";
+
+  try {
+    assert.equal(
+      isAllowedMediaUrl("https://fallback.public.blob.vercel-storage.com/aurelux-beauty/images/sample.jpg"),
+      true
+    );
+  } finally {
+    process.env.BLOB_PUBLIC_BASE_URL = previousBase;
+  }
+});
+
 test("isAllowedMediaUrl menolak URL arbitrary non-managed", () => {
   assert.equal(isAllowedMediaUrl("https://example.com/manual-link.jpg"), false);
   assert.equal(isAllowedMediaUrl("https://cdn.example.com/media/images/sample.jpg"), false);

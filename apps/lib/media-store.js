@@ -6,6 +6,8 @@ import { resolvePublicDirectoryPath } from "./content-store.js";
 const MAX_UPLOAD_SIZE = 25 * 1024 * 1024;
 const LOCAL_MEDIA_DRIVER = "local";
 const BLOB_MEDIA_DRIVER = "blob";
+const BLOB_PUBLIC_HOST_PATTERN = /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\//i;
+
 function resolveMediaStorageDriver() {
   const configured = (process.env.MEDIA_STORAGE_DRIVER || LOCAL_MEDIA_DRIVER).toLowerCase();
   if (configured === BLOB_MEDIA_DRIVER) {
@@ -19,7 +21,19 @@ function normalizeOptionalUrlBase(value) {
     return "";
   }
 
-  return value.trim().replace(/\/+$/, "");
+  const raw = value.trim();
+  if (!raw) {
+    return "";
+  }
+
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw.replace(/^\/+/, "")}`;
+
+  try {
+    const parsed = new URL(withProtocol);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch (_error) {
+    return "";
+  }
 }
 
 function resolveBlobReadWriteToken() {
@@ -82,11 +96,11 @@ function isBlobManagedUrl(url) {
   }
 
   const blobPublicBaseUrl = normalizeOptionalUrlBase(process.env.BLOB_PUBLIC_BASE_URL);
-  if (!blobPublicBaseUrl) {
-    return false;
+  if (blobPublicBaseUrl) {
+    return url === blobPublicBaseUrl || url.startsWith(`${blobPublicBaseUrl}/`);
   }
 
-  return url === blobPublicBaseUrl || url.startsWith(`${blobPublicBaseUrl}/`);
+  return BLOB_PUBLIC_HOST_PATTERN.test(url);
 }
 
 export function isManagedUploadUrl(url) {
