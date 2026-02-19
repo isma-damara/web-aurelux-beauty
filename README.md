@@ -94,7 +94,7 @@ Lokasi file: `apps/.env.local`
 | `MONGODB_MEDIA_COLLECTION`     | `media_assets`              | Collection metadata media                                                          |
 | `MONGODB_ACTIVITY_COLLECTION`  | `activity_logs`             | Collection activity log                                                            |
 | `MONGODB_ADMINS_COLLECTION`    | `admins`                    | Collection akun admin                                                              |
-| `ADMIN_SEED_EMAIL`             | `admin@aurelux.local`       | Email admin awal (seed)                                                            |
+| `ADMIN_SEED_EMAIL`             | `Aureluxbeautycare@gmail.com` | Email admin awal (seed)                                                          |
 | `ADMIN_SEED_PASSWORD`          | `Admin123#`                 | Password admin awal (seed)                                                         |
 | `ADMIN_SEED_ROLE`              | `admin`                     | Role admin (saat ini hanya `admin`)                                                |
 | `ADMIN_SESSION_SECRET`         | -                           | Secret cookie session admin (wajib kuat di production)                             |

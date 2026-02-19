@@ -373,12 +373,13 @@ export default function AdminProductsPage() {
               </label>
 
               <label className={`${styles.fullWidth} ${labelClass}`}>
-                Deskripsi
+                Deskripsi (opsional)
                 <textarea
                   className={textareaClass}
                   rows={4}
                   value={productForm.description}
                   onChange={(event) => setProductForm((prev) => ({ ...prev, description: event.target.value }))}
+                  placeholder="Kosongkan jika tidak ingin ditampilkan di quick view."
                 />
               </label>
 
@@ -405,12 +406,13 @@ export default function AdminProductsPage() {
               </label>
 
               <label className={`${styles.fullWidth} ${labelClass}`}>
-                Cara Pakai
+                Cara Pakai (opsional)
                 <textarea
                   className={textareaClass}
                   rows={3}
                   value={productForm.usage}
                   onChange={(event) => setProductForm((prev) => ({ ...prev, usage: event.target.value }))}
+                  placeholder="Kosongkan jika tidak ingin ditampilkan di quick view."
                 />
               </label>
 

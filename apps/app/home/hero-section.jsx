@@ -46,20 +46,20 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
           Lihat Produk
         </a>
         <div className="mt-4 flex items-center gap-3 max-md:hidden">
-          <div className="h-[120px] w-[120px]">
+          <div className="h-[100px] w-[140px]">
             <Image
-              src="/logo/Bpom.png"
+              src="/logo/BPOM.png"
               alt="Logo BPOM"
-              width={95}
-              height={100}
+              width={115}
+              height={115}
             />
           </div>
-          <div className="h-[115px] w-[150px] -translate-x-[5px]">
+          <div className="h-[120px] w-[120px] -translate-x-[5px]">
             <Image
               src="/logo/Halal.png"
               alt="Logo Halal"
-              width={70}
-              height={70}
+              width={65}
+              height={65}
             />
           </div>
         </div>

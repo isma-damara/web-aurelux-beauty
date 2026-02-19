@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { buildWhatsAppLink } from "./content-utils";
+import { buildProductOrderMessage, buildWhatsAppLink } from "./content-utils";
 
 export default function ProductModal({ product, contactWhatsApp, onClose }) {
   if (!product) {
@@ -7,6 +7,17 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
   }
 
   const detailImage = product.detailImage || product.cardImage || "";
+  const description = typeof product.description === "string" ? product.description.trim() : "";
+  const usage = typeof product.usage === "string" ? product.usage.trim() : "";
+  const ingredients = Array.isArray(product.ingredients)
+    ? product.ingredients.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)
+    : [];
+  const usageSteps = usage
+    ? usage
+        .split(/\r?\n/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
 
   return (
     <div
@@ -23,7 +34,7 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
         X
       </button>
       <div
-        className="relative grid w-[min(980px,100%)] max-h-[90vh] grid-cols-[minmax(300px,47%)_minmax(0,1fr)] overflow-auto rounded-[22px] bg-white opacity-100 animate-quick-view-in max-md:max-h-full max-md:w-full max-md:grid-cols-1 max-md:rounded-2xl"
+        className="relative grid w-[min(980px,100%)] max-h-[90vh] grid-cols-[minmax(300px,47%)_minmax(0,1fr)] overflow-hidden rounded-[14px] bg-white opacity-100 animate-quick-view-in max-md:max-h-full max-md:w-full max-md:grid-cols-1 max-md:overflow-auto max-md:rounded-xl"
         role="dialog"
         aria-modal="true"
         aria-label={product.fullName || product.name}
@@ -38,7 +49,7 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
           X
         </button>
         <div className="relative flex min-h-[530px] bg-white p-3 max-md:min-h-[320px] max-md:p-2.5">
-          <div className="relative flex-1 overflow-hidden rounded-[20px] border border-[rgba(31,35,33,0.08)] bg-[radial-gradient(circle_at_20%_20%,#f6f2e8_0%,#ece4cf_100%)] shadow-[0_6px_18px_rgba(31,35,33,0.08)] max-md:rounded-[14px]">
+          <div className="relative flex-1 overflow-hidden rounded-[12px] border border-[rgba(31,35,33,0.08)] bg-[radial-gradient(circle_at_20%_20%,#f6f2e8_0%,#ece4cf_100%)] shadow-[0_6px_18px_rgba(31,35,33,0.08)] max-md:rounded-[10px]">
             {detailImage ? (
               <Image
                 src={detailImage}
@@ -54,30 +65,62 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
                 Gambar detail belum tersedia
               </div>
             )}
+            <div className="pointer-events-none absolute bottom-3 right-3 z-[6] flex items-center gap-2">
+              {[
+                { src: "/logo/Bpom.png", alt: "Logo BPOM" },
+                { src: "/logo/Halal.png", alt: "Logo Halal" },
+              ].map((logo) => (
+                <div
+                  key={logo.src}
+                  className="flex h-[52px] w-[52px] items-center justify-center rounded-full border border-[rgba(181,140,55,0.35)] bg-white/95 p-2 shadow-[0_6px_14px_rgba(31,35,33,0.12)]"
+                >
+                  <Image
+                    src={logo.src}
+                    alt={logo.alt}
+                    width={100}
+                    height={100}
+                    className="h-[39px] w-[39px] object-contain"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="px-[30px] pb-[30px] pt-[34px] max-md:px-5 max-md:pb-6 max-md:pt-6">
-          <h3 className="mb-2 font-brand text-[clamp(2rem,4vw,2.8rem)] leading-[1.06]">{product.fullName || product.name}</h3>
-          <p className="mb-4 italic text-ink-700">
-            <strong></strong> {product.usp}
-          </p>
-          <p className="leading-[1.6] text-ink-700">{product.description}</p>
+        <div className="flex h-[530px] flex-col px-[30px] pb-[20px] pt-[34px] max-md:h-auto max-md:px-5 max-md:pb-6 max-md:pt-6">
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            <h3 className="mb-2 font-brand text-[clamp(2rem,4vw,2.8rem)] leading-[1.06]">{product.fullName || product.name}</h3>
+            <p className="mb-4 italic text-ink-700">
+              <strong></strong> {product.usp}
+            </p>
+            {description ? <p className="leading-[1.6] text-ink-700">{description}</p> : null}
 
-          <h4 className="mb-1.5 mt-[18px] text-[1.02rem]">Bahan Utama</h4>
-          <ul className="pl-[18px]">
-            {(product.ingredients ?? []).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+            {ingredients.length > 0 ? (
+              <>
+                <h4 className="mb-1.5 mt-[18px] text-[1.02rem] font-bold">Bahan Utama</h4>
+                <ul className="list-disc pl-[18px] text-ink-700 marker:text-ink-700">
+                  {ingredients.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
 
-          <h4 className="mb-1.5 mt-[18px] text-[1.02rem]">Cara Pakai</h4>
-          <p className="leading-[1.6] text-ink-700">{product.usage}</p>
-
+            {usageSteps.length > 0 ? (
+              <>
+                <h4 className="mb-1.5 mt-[18px] text-[1.02rem] font-bold">Cara Pakai</h4>
+                <ul className="list-disc pl-[18px] text-ink-700 marker:text-ink-700">
+                  {usageSteps.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </div>
           <a
-            className="mt-4 inline-flex min-h-[42px] items-center justify-center gap-2 rounded-full border border-transparent bg-[linear-gradient(100deg,#1f7a3f,#239149)] px-5 text-[0.92rem] font-semibold text-white shadow-[0_8px_18px_rgba(35,145,73,0.3)] transition duration-200 hover:-translate-y-px"
+            className="mt-4 mx-auto flex w-fit min-h-[42px] shrink-0 items-center justify-center gap-2 rounded-full border border-transparent bg-[linear-gradient(100deg,#1f7a3f,#239149)] px-5 text-[0.92rem] font-semibold text-white shadow-[0_8px_18px_rgba(35,145,73,0.3)] transition duration-200 hover:-translate-y-px"
             href={buildWhatsAppLink(
               contactWhatsApp,
-              `Halo, saya ingin pesan ${product.fullName || product.name}.`,
+              buildProductOrderMessage(product),
             )}
           >
             <Image

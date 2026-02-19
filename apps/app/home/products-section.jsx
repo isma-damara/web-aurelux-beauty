@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { buildWhatsAppLink } from "./content-utils";
+import { buildProductOrderMessage, buildWhatsAppLink } from "./content-utils";
 
 export default function ProductsSection({
   products,
@@ -57,8 +57,8 @@ export default function ProductsSection({
                 </div>
                 <div className="absolute bottom-3 right-3 z-[3] flex items-center gap-2">
                   {[
-                    { src: "/logo/Halal.png", alt: "Logo Halal" },
                     { src: "/logo/Bpom.png", alt: "Logo BPOM" },
+                    { src: "/logo/Halal.png", alt: "Logo Halal" },
                   ].map((logo) => (
                     <div
                       key={logo.src}
@@ -91,30 +91,32 @@ export default function ProductsSection({
                     </li>
                   ))}
                 </ul>
-                <div className="mt-auto flex flex-wrap justify-center gap-2.5 border-t border-[rgba(31,35,33,0.08)] pt-4 [&>*]:flex-1">
-                  <button
-                    className={ghostButtonClass}
-                    type="button"
-                    onClick={() => onOpenProduct(product)}
-                  >
-                    Quick View
-                  </button>
-                  <a
-                    className={primaryButtonClass}
-                    href={buildWhatsAppLink(
-                      contactWhatsApp,
-                      `Halo, saya ingin pesan ${product.fullName || product.name}.`,
-                    )}
-                  >
-                    <Image
-                      src="/logo/whatsapp.png"
-                      alt=""
-                      width={18}
-                      height={18}
-                      className="h-[18px] w-[18px] object-contain"
-                    />
-                    <span>Hubungi via WhatsApp</span>
-                  </a>
+                <div className="mt-auto">
+                  <div className="mt-5 flex flex-wrap justify-center gap-2.5 border-t border-[rgba(31,35,33,0.08)] pt-4 [&>*]:flex-1">
+                    <button
+                      className={ghostButtonClass}
+                      type="button"
+                      onClick={() => onOpenProduct(product)}
+                    >
+                      Quick View
+                    </button>
+                    <a
+                      className={primaryButtonClass}
+                      href={buildWhatsAppLink(
+                        contactWhatsApp,
+                        buildProductOrderMessage(product),
+                      )}
+                    >
+                      <Image
+                        src="/logo/whatsapp.png"
+                        alt=""
+                        width={18}
+                        height={18}
+                        className="h-[18px] w-[18px] object-contain"
+                      />
+                      <span>Hubungi via WhatsApp</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </article>

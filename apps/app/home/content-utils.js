@@ -75,6 +75,24 @@ export function buildWhatsAppLink(whatsapp, message) {
   return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
 }
 
+export function buildProductOrderMessage(product) {
+  const productName =
+    toStringValue(product?.fullName).trim() ||
+    toStringValue(product?.name).trim() ||
+    "Produk Aurelux Beauty";
+
+  const lines = [
+    "Halo Admin Aurelux Beauty,",
+    "",
+    "Saya ingin melakukan pemesanan produk berikut:",
+    `Nama Produk: ${productName}`,
+  ];
+
+  lines.push("", "Mohon info harga, stok, dan cara pemesanan.", "Terima kasih.");
+
+  return lines.join("\n");
+}
+
 export function resolveContentData(content) {
   const hero = { ...FALLBACK_CONTENT.hero, ...(content?.hero ?? {}) };
   const about = {
