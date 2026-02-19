@@ -1,58 +1,63 @@
 # Aurelux Beauty
 
-Monorepo untuk website katalog Aurelux Beauty (public site) dan admin panel pengelolaan konten.
+Website katalog Aurelux Beauty dengan admin panel untuk manajemen konten terpusat.
 
-## Ringkasan
+## Overview
 
-- Frontend: Next.js 14 (App Router), React 18, Tailwind CSS
-- Admin panel: route `/admin` dengan login berbasis MongoDB
-- Konten: MongoDB (`CONTENT_STORE_DRIVER=mongo`, runtime mongo-only)
-- Media upload: disimpan ke `apps/public/uploads`
+Aplikasi ini terdiri dari 2 area utama:
+- Public website (`/`): landing page produk, hero banner, profil brand, dan CTA WhatsApp.
+- Admin panel (`/admin`): pengelolaan produk, profil perusahaan, serta media/text video banner.
 
-## Fitur Utama
+Seluruh data konten utama dijalankan dengan MongoDB (`CONTENT_STORE_DRIVER=mongo`).
+
+## Core Features
 
 ### Public Website
-
-- Sticky header + navigasi anchor section
-- Hero banner (title, subtitle, video/poster/image)
-- Section produk + quick view modal
-- Section tentang kami, kontak, sosial media
-- Floating WhatsApp button
-- Responsive desktop/tablet/mobile
+- Hero banner dinamis (title, subtitle, video, poster, hero product image).
+- Product section + quick view modal.
+- About, contact, social links, dan footer yang bisa diubah dari admin.
+- Floating WhatsApp CTA.
+- Responsive untuk desktop dan mobile.
 
 ### Admin Panel
+- Login admin berbasis MongoDB.
+- CRUD produk (tambah, edit, hapus).
+- Upload/ganti media produk (card + detail).
+- Edit profil bisnis (Tentang Kami, Kontak, Sosial Media).
+- Edit teks dan media video banner.
+- Activity log untuk perubahan melalui API admin.
 
-- Login admin (`/admin/login`)
-- Produk: tambah, edit, hapus (hard delete)
-- Media produk: upload/ganti gambar card dan detail
-- Profil: edit tentang kami, kontak, sosial media
-- Video Banner: edit teks banner terpisah dari media banner
-- Upload media via API admin (`/api/admin/media`)
+## Tech Stack
 
-## Arsitektur Repo
+- Next.js 14 (App Router)
+- React 18
+- Tailwind CSS
+- MongoDB (runtime data store)
+
+## Repository Structure
 
 ```text
 aurelux-beauty/
 |-- apps/
 |   |-- app/
-|   |   |-- page.js                   # Home page entry
-|   |   |-- home/                     # Komponen halaman home
-|   |   |-- admin/                    # Halaman admin panel
-|   |   `-- api/admin/                # API admin (auth/content/products/media/settings)
-|   |-- lib/                          # Content store, mongo client, auth, media
-|   |-- scripts/                      # Setup schema/admin/migrasi mongo
-|   |-- data/site-content.json        # Arsip konten awal untuk migrasi ke MongoDB
-|   `-- public/                       # Aset statis + uploads
-`-- docs/                             # Dokumen konsep & HLD
+|   |   |-- page.js                  # Public home page
+|   |   |-- home/                    # Komponen halaman publik
+|   |   |-- admin/                   # UI admin panel
+|   |   `-- api/admin/               # API admin (auth/content/products/media/settings)
+|   |-- lib/                         # Mongo client, auth, content/media repository
+|   |-- scripts/                     # Script setup schema/admin/migrasi
+|   |-- data/site-content.json       # Sumber konten awal (untuk migrasi)
+|   `-- public/                      # Aset statis + uploads
+`-- docs/                            # Dokumen konsep, HLD, panduan admin
 ```
 
-## Prasyarat
+## Prerequisites
 
 - Node.js `>= 18.17` (disarankan 20 LTS)
 - npm `>= 9`
-- MongoDB (wajib)
+- MongoDB aktif
 
-## Quick Start (Lokal)
+## Local Development
 
 1. Install dependency:
 
@@ -61,155 +66,127 @@ cd apps
 npm install
 ```
 
-2. Salin env:
+2. Salin environment file:
 
 ```powershell
-Copy-Item apps/.env.example apps/.env.local
+Copy-Item .env.example .env.local
 ```
 
-3. Jalankan app:
+3. Jalankan development server:
 
 ```bash
-cd apps
 npm run dev
 ```
 
-4. Buka:
-
+4. Akses aplikasi:
 - Public site: `http://localhost:3000`
 - Admin login: `http://localhost:3000/admin/login`
 
-## Konfigurasi Environment
+## Environment Variables
 
-Lokasi file: `apps/.env.local`
+Lokasi: `apps/.env.local`
 
-| Variable                       | Default                     | Keterangan                                                                         |
-| ------------------------------ | --------------------------- | ---------------------------------------------------------------------------------- |
-| `CONTENT_STORE_DRIVER`         | `mongo`                     | Wajib `mongo` (runtime mongo-only)                                                 |
-| `MONGODB_URI`                  | `mongodb://localhost:27017` | URI koneksi MongoDB                                                                |
-| `MONGODB_DB_NAME`              | `aurelux_beauty`            | Nama database                                                                      |
-| `MONGODB_PRODUCTS_COLLECTION`  | `products`                  | Collection produk                                                                  |
-| `MONGODB_SETTINGS_COLLECTION`  | `site_settings`             | Collection settings konten                                                         |
-| `MONGODB_SETTINGS_DOCUMENT_ID` | `main`                      | ID dokumen settings tunggal                                                        |
-| `MONGODB_MEDIA_COLLECTION`     | `media_assets`              | Collection metadata media                                                          |
-| `MONGODB_ACTIVITY_COLLECTION`  | `activity_logs`             | Collection activity log                                                            |
-| `MONGODB_ADMINS_COLLECTION`    | `admins`                    | Collection akun admin                                                              |
-| `ADMIN_SEED_EMAIL`             | `Aureluxbeautycare@gmail.com` | Email admin awal (seed)                                                          |
-| `ADMIN_SEED_PASSWORD`          | `Admin123#`                 | Password admin awal (seed)                                                         |
-| `ADMIN_SEED_ROLE`              | `admin`                     | Role admin (saat ini hanya `admin`)                                                |
-| `ADMIN_SESSION_SECRET`         | -                           | Secret cookie session admin (wajib kuat di production)                             |
-| `NEXT_PUBLIC_APP_URL`          | `http://localhost:3000`     | Base URL publik untuk metadata OpenGraph/Twitter (isi domain production di Vercel) |
+| Variable | Default | Keterangan |
+| --- | --- | --- |
+| `CONTENT_STORE_DRIVER` | `mongo` | Wajib `mongo` |
+| `MONGODB_URI` | `mongodb://localhost:27017` | URI MongoDB |
+| `MONGODB_DB_NAME` | `aurelux_beauty` | Nama database |
+| `MONGODB_PRODUCTS_COLLECTION` | `products` | Collection produk |
+| `MONGODB_SETTINGS_COLLECTION` | `site_settings` | Collection settings situs |
+| `MONGODB_SETTINGS_DOCUMENT_ID` | `main` | ID dokumen settings |
+| `MONGODB_MEDIA_COLLECTION` | `media_assets` | Collection metadata media |
+| `MONGODB_ACTIVITY_COLLECTION` | `activity_logs` | Collection audit log |
+| `MONGODB_ADMINS_COLLECTION` | `admins` | Collection akun admin |
+| `ADMIN_SEED_EMAIL` | `Aureluxbeautycare@gmail.com` | Email akun admin seed |
+| `ADMIN_SEED_PASSWORD` | `Admin123#` | Password akun admin seed |
+| `ADMIN_SEED_ROLE` | `admin` | Role admin |
+| `ADMIN_SESSION_SECRET` | (required) | Secret cookie session admin |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Base URL publik untuk metadata/link absolut |
 
-## Setup MongoDB (Disarankan Untuk Production)
+## MongoDB Setup
 
-1. Isi `MONGODB_URI` dan variabel Mongo lain di `.env.local`.
-2. Cek koneksi:
+Jalankan dari folder `apps/`:
+
+1. Validasi koneksi MongoDB:
 
 ```bash
 npm run check:mongo
 ```
 
-3. Buat/upgrade schema + index:
+2. Setup validator + index:
 
 ```bash
 npm run setup:mongo:schema
 ```
 
-4. Seed akun admin:
+3. Seed atau update akun admin:
 
 ```bash
 npm run setup:mongo:admin
 ```
 
-5. (Opsional) Migrasi konten awal dari JSON lokal ke MongoDB:
+4. (Opsional) migrasi konten awal JSON ke MongoDB:
 
 ```bash
 npm run migrate:content:mongo
 ```
 
-6. Pastikan driver Mongo aktif:
+## Available Scripts
 
-```env
-CONTENT_STORE_DRIVER=mongo
-```
+Semua dijalankan dari folder `apps/`.
 
-7. Restart dev server.
+| Script | Fungsi |
+| --- | --- |
+| `npm run dev` | Jalankan app mode development |
+| `npm run build` | Build production |
+| `npm run start` | Jalankan hasil build |
+| `npm run lint` | Lint project (Next.js) |
+| `npm run check:mongo` | Cek koneksi MongoDB |
+| `npm run setup:mongo:schema` | Setup schema/index MongoDB |
+| `npm run setup:mongo:admin` | Seed/update akun admin |
+| `npm run migrate:content:mongo` | Migrasi konten JSON ke MongoDB |
 
-Catatan:
+## Data Model (MongoDB)
 
-- Data settings/produk/admin dibaca dan ditulis ke MongoDB.
-- File media upload tetap di filesystem (`public/uploads`), sedangkan metadata disimpan di collection `media_assets`.
+| Collection | Fungsi |
+| --- | --- |
+| `products` | Data produk (nama, USP, deskripsi, ingredients, usage, media) |
+| `site_settings` | Hero, about, contact, socials, footer |
+| `media_assets` | Metadata file upload dan relasi penggunaan |
+| `activity_logs` | Log aktivitas admin |
+| `admins` | Akun admin, hash password, status aktif |
 
-## Model Data MongoDB
+## Admin Access & Security
 
-| Collection      | Fungsi                                                        |
-| --------------- | ------------------------------------------------------------- |
-| `products`      | Data produk (nama, USP, deskripsi, ingredients, usage, media) |
-| `site_settings` | Hero/banner, about, contact, socials, footer                  |
-| `media_assets`  | Metadata file media upload + relasi penggunaan                |
-| `activity_logs` | Log aktivitas admin di API                                    |
-| `admins`        | User admin + password hash + status aktif                     |
-
-## Auth & Akses Admin
-
-- Route yang diproteksi: `/admin/*` dan `/api/admin/*`
-- Route publik: website utama (`/`) tidak perlu login
-- Login memakai email/password dari collection `admins`
-- Session disimpan pada cookie httpOnly `aurelux_admin_session`
-- Role yang diizinkan saat ini: `admin`
-
-## Scripts (`apps/`)
-
-| Script                          | Fungsi                               |
-| ------------------------------- | ------------------------------------ |
-| `npm run dev`                   | Menjalankan frontend dev server      |
-| `npm run build`                 | Build production frontend            |
-| `npm run start`                 | Menjalankan hasil build frontend     |
-| `npm run lint`                  | Lint frontend                        |
-| `npm run check:mongo`           | Cek koneksi MongoDB                  |
-| `npm run setup:mongo:schema`    | Setup validator + index MongoDB      |
-| `npm run setup:mongo:admin`     | Seed/update akun admin               |
-| `npm run migrate:content:mongo` | Migrasi konten local JSON ke MongoDB |
-
-## Troubleshooting Singkat
-
-- Error `Module not found: Can't resolve 'mongodb'`:
-  jalankan `cd apps && npm install`.
-- Muncul error `Aplikasi dikunci ke MongoDB`:
-  set `CONTENT_STORE_DRIVER=mongo` di `apps/.env.local`.
-- Login admin gagal:
-  pastikan `setup:mongo:admin` sudah dijalankan dan koleksi `admins` terisi.
-- Install npm gagal karena proxy/offline:
-  nonaktifkan sementara proxy env (`HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`) lalu install ulang.
+- Route terproteksi: `/admin/*` dan `/api/admin/*`.
+- Auth menggunakan email/password dari collection `admins`.
+- Session disimpan dalam cookie httpOnly: `aurelux_admin_session`.
+- Role yang didukung saat ini: `admin`.
 
 ## Deployment
 
 ### Vercel
 
-1. Import repository ini ke Vercel.
-2. Pada Project Settings, set `Root Directory` ke `apps`.
-3. Gunakan command default dari `apps/vercel.json`:
-   - Install: `npm install`
-   - Build: `npm run build`
-4. Tambahkan environment variables berikut di Vercel:
-   - `CONTENT_STORE_DRIVER=mongo`
-   - `MONGODB_URI=<mongodb-atlas-uri>`
-   - `MONGODB_DB_NAME=aurelux_beauty` (atau nama DB Anda)
-   - `MONGODB_PRODUCTS_COLLECTION=products`
-   - `MONGODB_SETTINGS_COLLECTION=site_settings`
-   - `MONGODB_SETTINGS_DOCUMENT_ID=main`
-   - `MONGODB_MEDIA_COLLECTION=media_assets`
-   - `MONGODB_ACTIVITY_COLLECTION=activity_logs`
-   - `MONGODB_ADMINS_COLLECTION=admins`
-   - `ADMIN_SESSION_SECRET=<secret-random-minimal-32-karakter>`
-   - `NEXT_PUBLIC_APP_URL=https://domain-anda.com`
-5. Redeploy setelah env tersimpan.
+1. Import repository ke Vercel.
+2. Set `Root Directory` ke `apps`.
+3. Install command: `npm install`
+4. Build command: `npm run build`
+5. Tambahkan environment variables produksi (minimal):
+- `CONTENT_STORE_DRIVER=mongo`
+- `MONGODB_URI=<mongodb-atlas-uri>`
+- `MONGODB_DB_NAME=aurelux_beauty`
+- `MONGODB_PRODUCTS_COLLECTION=products`
+- `MONGODB_SETTINGS_COLLECTION=site_settings`
+- `MONGODB_SETTINGS_DOCUMENT_ID=main`
+- `MONGODB_MEDIA_COLLECTION=media_assets`
+- `MONGODB_ACTIVITY_COLLECTION=activity_logs`
+- `MONGODB_ADMINS_COLLECTION=admins`
+- `ADMIN_SESSION_SECRET=<strong-random-secret>`
+- `NEXT_PUBLIC_APP_URL=https://domain-anda.com`
 
-Catatan penting untuk media upload di Vercel:
-
-- Upload file ke `public/uploads` tidak persisten di environment serverless Vercel.
-- Admin tetap bisa mengisi media dengan URL eksternal (CDN/object storage) langsung dari form admin.
-- Jika perlu upload file langsung dari panel admin di production, integrasikan object storage (mis. Vercel Blob, S3, Cloudinary).
+Catatan media upload di Vercel:
+- Upload ke `public/uploads` tidak persisten pada serverless filesystem.
+- Untuk production, disarankan gunakan URL media eksternal / object storage.
 
 ### VPS / Node Server
 
@@ -220,8 +197,21 @@ npm run build
 npm run start
 ```
 
-## Dokumen Referensi
+## Troubleshooting
 
+- `Module not found: Can't resolve 'mongodb'`:
+  jalankan `cd apps && npm install`.
+- Error runtime terkait content store:
+  pastikan `CONTENT_STORE_DRIVER=mongo`.
+- Login admin gagal:
+  pastikan koleksi admin terisi (`npm run setup:mongo:admin`).
+- Perubahan konten tidak muncul:
+  refresh browser dan verifikasi data tersimpan di admin panel.
+
+## Documentation
+
+- `docs/HLD.md`
 - `docs/konsep/KAK_Aurelux_Beauty.md`
 - `docs/konsep/Konsep_Bisnis_Aurelux_Beauty.md`
-- `docs/HLD.md`
+- `docs/Panduan_Penggunaan_Admin_Panel_Aurelux_Beauty.md`
+- `docs/Panduan_Penggunaan_Admin_Panel_Aurelux_Beauty_Client.pdf`
