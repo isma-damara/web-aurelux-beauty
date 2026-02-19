@@ -9,6 +9,7 @@ import {
   updateProduct,
   uploadMedia
 } from "../admin-api";
+const MAX_DETAIL_IMAGES = 5;
 
 const styles = {
   loading: "grid min-h-[200px] place-items-center rounded-xl border border-dashed border-gray-300 text-[0.9rem] text-gray-500",
@@ -47,12 +48,12 @@ const styles = {
   modalHeader: "flex items-center gap-2.5",
   formGrid: "grid grid-cols-2 gap-2.5 max-[860px]:grid-cols-1",
   fullWidth: "col-span-2 max-[860px]:col-span-1",
-  mediaBlock: "grid gap-2 rounded-[10px] border border-dashed border-gray-300 p-2.5",
+  mediaBlock: "grid content-start gap-2 rounded-[10px] border border-dashed border-gray-300 p-2.5",
   mediaLabel: "m-0 text-[0.83rem] font-semibold text-gray-700",
   mediaPreviewFrame: "min-h-[96px] w-full overflow-hidden rounded-[9px] border border-gray-200 bg-white",
   mediaPreviewImage: "block min-h-[96px] h-full w-full object-contain",
   mediaPlaceholder: "grid min-h-[96px] place-items-center rounded-[9px] border border-dashed border-gray-300 p-2.5 text-center text-[0.82rem] text-gray-500",
-  mediaActions: "flex flex-wrap gap-[7px]",
+  mediaActions: "flex flex-wrap items-center gap-[7px]",
   uploadButton:
     "inline-flex min-h-[33px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[11px] text-[0.78rem] text-gray-700 transition hover:bg-gray-50",
   buttonRow: "flex flex-wrap gap-[7px]"
@@ -67,7 +68,7 @@ const textareaClass =
 const EMPTY_PRODUCT_FORM = {
   name: "",
   cardImage: "",
-  detailImage: "",
+  detailImages: [],
   usp: "",
   shortListText: "",
   description: "",
@@ -89,11 +90,40 @@ function textToList(value) {
     .filter(Boolean);
 }
 
+function normalizeDetailImagesForForm(value, fallbackDetailImage = "", fallbackCardImage = "") {
+  const fromArray = Array.isArray(value) ? value : [];
+  const merged = fromArray
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+  const legacy = typeof fallbackDetailImage === "string" ? fallbackDetailImage.trim() : "";
+  const cardImage = typeof fallbackCardImage === "string" ? fallbackCardImage.trim() : "";
+
+  if (legacy) {
+    merged.push(legacy);
+  }
+
+  const unique = [...new Set(merged)].slice(0, MAX_DETAIL_IMAGES);
+  if (unique.length > 0) {
+    return unique;
+  }
+
+  if (cardImage) {
+    return [cardImage];
+  }
+
+  return [];
+}
+
 function mapProductToForm(product) {
+  const detailImages = normalizeDetailImagesForForm(
+    product?.detailImages,
+    product?.detailImage,
+    product?.cardImage
+  );
   return {
     name: product?.name ?? product?.fullName ?? "",
     cardImage: product?.cardImage ?? "",
-    detailImage: product?.detailImage ?? "",
+    detailImages,
     usp: product?.usp ?? "",
     shortListText: listToText(product?.shortList),
     description: product?.description ?? "",
@@ -104,11 +134,14 @@ function mapProductToForm(product) {
 
 function mapFormToProductPayload(form) {
   const productName = form.name.trim();
+  const cardImage = form.cardImage.trim();
+  const detailImages = normalizeDetailImagesForForm(form.detailImages, "", cardImage);
   return {
     name: productName,
     fullName: productName,
-    cardImage: form.cardImage.trim(),
-    detailImage: form.detailImage.trim(),
+    cardImage,
+    detailImage: detailImages[0] || cardImage,
+    detailImages,
     usp: form.usp.trim(),
     shortList: textToList(form.shortListText),
     description: form.description.trim(),
@@ -139,6 +172,7 @@ export default function AdminProductsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState("");
   const [productForm, setProductForm] = useState(EMPTY_PRODUCT_FORM);
+  const [selectedDetailImageIndex, setSelectedDetailImageIndex] = useState(0);
 
   const titleText = useMemo(() => (editingProductId ? "Update Produk" : "Tambah Produk"), [editingProductId]);
 
@@ -170,6 +204,7 @@ export default function AdminProductsPage() {
   const onResetForm = () => {
     setEditingProductId("");
     setProductForm(EMPTY_PRODUCT_FORM);
+    setSelectedDetailImageIndex(0);
     setUploadingField("");
   };
 
@@ -220,6 +255,7 @@ export default function AdminProductsPage() {
   const onEditProduct = (product) => {
     setEditingProductId(product.id);
     setProductForm(mapProductToForm(product));
+    setSelectedDetailImageIndex(0);
     setError("");
     setIsFormOpen(true);
   };
@@ -235,11 +271,19 @@ export default function AdminProductsPage() {
     try {
       await removeProduct(product.id);
 
-      if (product.cardImage?.startsWith("/uploads/")) {
+      if (product.cardImage) {
         await removeMedia(product.cardImage);
       }
-      if (product.detailImage?.startsWith("/uploads/") && product.detailImage !== product.cardImage) {
-        await removeMedia(product.detailImage);
+
+      const detailImages = normalizeDetailImagesForForm(
+        product?.detailImages,
+        product?.detailImage,
+        product?.cardImage
+      );
+      for (const detailImageUrl of detailImages) {
+        if (detailImageUrl && detailImageUrl !== product.cardImage) {
+          await removeMedia(detailImageUrl);
+        }
       }
 
       await loadProducts();
@@ -282,16 +326,101 @@ export default function AdminProductsPage() {
       return;
     }
 
-    if (url.startsWith("/uploads/")) {
-      try {
-        await removeMedia(url);
-      } catch (_error) {
-        setError("Media dihapus dari form, namun gagal dihapus dari storage.");
-      }
+    try {
+      await removeMedia(url);
+    } catch (_error) {
+      setError("Media dihapus dari form, namun gagal dihapus dari storage.");
     }
 
     setProductForm((prev) => ({ ...prev, [field]: "" }));
   };
+
+  const onUploadDetailImage = async (file) => {
+    if (!file) {
+      return;
+    }
+
+    if (productForm.detailImages.length >= MAX_DETAIL_IMAGES) {
+      setError(`Maksimal ${MAX_DETAIL_IMAGES} gambar detail per produk.`);
+      return;
+    }
+
+    setUploadingField("detailImages");
+    setError("");
+    try {
+      const uploaded = await uploadMedia(file);
+      const currentDetailImages = Array.isArray(productForm.detailImages) ? productForm.detailImages : [];
+      const nextDetailImages = [...new Set([...currentDetailImages, uploaded.url])].slice(0, MAX_DETAIL_IMAGES);
+      setProductForm((prev) => ({
+        ...prev,
+        detailImages: nextDetailImages
+      }));
+      setSelectedDetailImageIndex(Math.max(0, nextDetailImages.indexOf(uploaded.url)));
+      setNotice("Upload gambar detail berhasil.");
+    } catch (uploadError) {
+      setError(uploadError.message || "Gagal upload gambar detail.");
+    } finally {
+      setUploadingField("");
+    }
+  };
+
+  const onRemoveDetailImageAt = async (index) => {
+    const targetUrl = productForm.detailImages[index];
+    if (!targetUrl) {
+      return;
+    }
+
+    if (targetUrl !== productForm.cardImage) {
+      try {
+        await removeMedia(targetUrl);
+      } catch (_error) {
+        setError("Gambar detail dihapus dari form, namun gagal dihapus dari storage.");
+      }
+    }
+
+    const nextLength = Math.max(0, productForm.detailImages.length - 1);
+    setProductForm((prev) => ({
+      ...prev,
+      detailImages: prev.detailImages.filter((_, itemIndex) => itemIndex !== index)
+    }));
+    setSelectedDetailImageIndex((prevIndex) => {
+      if (nextLength === 0) {
+        return 0;
+      }
+      if (prevIndex > index) {
+        return prevIndex - 1;
+      }
+      return Math.min(prevIndex, nextLength - 1);
+    });
+  };
+
+  const onClearDetailImages = async () => {
+    const urls = [...new Set(productForm.detailImages)];
+    if (urls.length === 0) {
+      return;
+    }
+
+    for (const url of urls) {
+      if (!url || url === productForm.cardImage) {
+        continue;
+      }
+
+      try {
+        await removeMedia(url);
+      } catch (_error) {
+        setError("Sebagian gambar detail gagal dihapus dari storage.");
+      }
+    }
+
+    setProductForm((prev) => ({
+      ...prev,
+      detailImages: []
+    }));
+    setSelectedDetailImageIndex(0);
+  };
+
+  const activeDetailImageUrl = productForm.detailImages[selectedDetailImageIndex] || "";
+  const isDetailLimitReached = productForm.detailImages.length >= MAX_DETAIL_IMAGES;
 
   if (loading) {
     return <div className={styles.loading}>Memuat data produk...</div>;
@@ -423,15 +552,6 @@ export default function AdminProductsPage() {
                   alt={productForm.name || "Gambar card produk"}
                   emptyText="Belum ada gambar card."
                 />
-                <label className={labelClass}>
-                  URL Gambar Card (opsional)
-                  <input
-                    className={inputClass}
-                    value={productForm.cardImage}
-                    onChange={(event) => setProductForm((prev) => ({ ...prev, cardImage: event.target.value }))}
-                    placeholder="https://cdn.example.com/product-card.jpg"
-                  />
-                </label>
                 <div className={styles.mediaActions}>
                   <label className={styles.uploadButton}>
                     Upload Gambar Card
@@ -439,7 +559,10 @@ export default function AdminProductsPage() {
                       className="hidden"
                       type="file"
                       accept="image/*"
-                      onChange={(event) => onUploadToField("cardImage", event.target.files?.[0])}
+                      onChange={(event) => {
+                        onUploadToField("cardImage", event.target.files?.[0]);
+                        event.target.value = "";
+                      }}
                     />
                   </label>
                   <button
@@ -456,19 +579,44 @@ export default function AdminProductsPage() {
               <div className={styles.mediaBlock}>
                 <p className={styles.mediaLabel}>Gambar Detail</p>
                 <MediaPreview
-                  url={productForm.detailImage}
+                  url={activeDetailImageUrl}
                   alt={productForm.name || "Gambar detail produk"}
                   emptyText="Belum ada gambar detail."
                 />
-                <label className={labelClass}>
-                  URL Gambar Detail (opsional)
-                  <input
-                    className={inputClass}
-                    value={productForm.detailImage}
-                    onChange={(event) => setProductForm((prev) => ({ ...prev, detailImage: event.target.value }))}
-                    placeholder="https://cdn.example.com/product-detail.jpg"
-                  />
-                </label>
+                <p className="m-0 text-[0.74rem] text-gray-500">
+                  {`Jumlah gambar detail: ${productForm.detailImages.length}/${MAX_DETAIL_IMAGES}`}
+                </p>
+                {productForm.detailImages.length > 0 ? (
+                  <div className="grid gap-1.5">
+                    {productForm.detailImages.map((url, index) => (
+                      <div
+                        key={`${url}-${index}`}
+                        className={`flex items-center gap-2 rounded-[9px] border px-2 py-1.5 ${
+                          index === selectedDetailImageIndex
+                            ? "border-gray-900 bg-white"
+                            : "border-gray-200 bg-gray-50"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          className={styles.ghostButton}
+                          onClick={() => setSelectedDetailImageIndex(index)}
+                        >
+                          {`Preview ${index + 1}`}
+                        </button>
+                        <span className="min-w-0 flex-1 truncate text-[0.72rem] text-gray-500">{url}</span>
+                        <button
+                          type="button"
+                          className={styles.dangerButton}
+                          onClick={() => onRemoveDetailImageAt(index)}
+                          disabled={uploadingField === "detailImages"}
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
                 <div className={styles.mediaActions}>
                   <label className={styles.uploadButton}>
                     Upload Gambar Detail
@@ -476,16 +624,20 @@ export default function AdminProductsPage() {
                       className="hidden"
                       type="file"
                       accept="image/*"
-                      onChange={(event) => onUploadToField("detailImage", event.target.files?.[0])}
+                      onChange={(event) => {
+                        onUploadDetailImage(event.target.files?.[0]);
+                        event.target.value = "";
+                      }}
+                      disabled={isDetailLimitReached}
                     />
                   </label>
                   <button
                     type="button"
                     className={styles.deleteButton}
-                    onClick={() => onRemoveFieldMedia("detailImage")}
-                    disabled={!productForm.detailImage || uploadingField === "detailImage"}
+                    onClick={onClearDetailImages}
+                    disabled={!productForm.detailImages.length || uploadingField === "detailImages"}
                   >
-                    Hapus Gambar Detail
+                    Hapus Semua Detail
                   </button>
                 </div>
               </div>

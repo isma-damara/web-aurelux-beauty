@@ -1,16 +1,47 @@
 import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { buildProductOrderMessage, buildWhatsAppLink } from "./content-utils";
 
 export default function ProductModal({ product, contactWhatsApp, onClose }) {
-  if (!product) {
-    return null;
-  }
+  const detailImages = useMemo(() => {
+    if (!product) {
+      return [];
+    }
 
-  const detailImage = product.detailImage || product.cardImage || "";
-  const description = typeof product.description === "string" ? product.description.trim() : "";
-  const usage = typeof product.usage === "string" ? product.usage.trim() : "";
-  const ingredients = Array.isArray(product.ingredients)
-    ? product.ingredients.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)
+    const fromArray = Array.isArray(product.detailImages)
+      ? product.detailImages
+      : [];
+    const legacyImage =
+      typeof product.detailImage === "string" ? product.detailImage.trim() : "";
+    const cardImage =
+      typeof product.cardImage === "string" ? product.cardImage.trim() : "";
+    const merged = fromArray
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
+
+    if (legacyImage) {
+      merged.push(legacyImage);
+    }
+
+    const unique = [...new Set(merged)].slice(0, 5);
+    if (unique.length > 0) {
+      return unique;
+    }
+
+    if (cardImage) {
+      return [cardImage];
+    }
+
+    return [];
+  }, [product]);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const description =
+    typeof product?.description === "string" ? product.description.trim() : "";
+  const usage = typeof product?.usage === "string" ? product.usage.trim() : "";
+  const ingredients = Array.isArray(product?.ingredients)
+    ? product.ingredients
+        .map((item) => (typeof item === "string" ? item.trim() : ""))
+        .filter(Boolean)
     : [];
   const usageSteps = usage
     ? usage
@@ -18,6 +49,42 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
         .map((item) => item.trim())
         .filter(Boolean)
     : [];
+
+  useEffect(() => {
+    setActiveSlideIndex(0);
+  }, [product?.id, detailImages.length]);
+
+  useEffect(() => {
+    if (detailImages.length <= 1) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveSlideIndex((prev) => (prev + 1) % detailImages.length);
+    }, 2500);
+
+    return () => window.clearInterval(intervalId);
+  }, [detailImages.length]);
+
+  const onPrevSlide = () => {
+    if (detailImages.length <= 1) {
+      return;
+    }
+    setActiveSlideIndex(
+      (prev) => (prev - 1 + detailImages.length) % detailImages.length,
+    );
+  };
+
+  const onNextSlide = () => {
+    if (detailImages.length <= 1) {
+      return;
+    }
+    setActiveSlideIndex((prev) => (prev + 1) % detailImages.length);
+  };
+
+  if (!product) {
+    return null;
+  }
 
   return (
     <div
@@ -50,16 +117,66 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
         </button>
         <div className="relative flex min-h-[530px] bg-white p-3 max-md:min-h-[320px] max-md:p-2.5">
           <div className="relative flex-1 overflow-hidden rounded-[12px] border border-[rgba(31,35,33,0.08)] bg-[radial-gradient(circle_at_20%_20%,#f6f2e8_0%,#ece4cf_100%)] shadow-[0_6px_18px_rgba(31,35,33,0.08)] max-md:rounded-[10px]">
-            {detailImage ? (
-              <Image
-                src={detailImage}
-                alt={product.fullName || product.name}
-                fill
-                style={{
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-              />
+            {detailImages.length > 0 ? (
+              <div className="relative h-full w-full">
+                <div
+                  className="flex h-full transform-gpu will-change-transform transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  style={{
+                    transform: `translateX(-${activeSlideIndex * 100}%)`,
+                  }}
+                >
+                  {detailImages.map((imageUrl, index) => (
+                    <div
+                      key={`${imageUrl}-${index}`}
+                      className="relative h-full min-w-full"
+                    >
+                      <img
+                        src={imageUrl}
+                        alt={`${product.fullName || product.name} - ${index + 1}`}
+                        className="absolute inset-0 h-full w-full object-cover object-center"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {detailImages.length > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      className="absolute left-3 top-1/2 z-[7] -translate-y-1/2 bg-transparent p-0 text-[2rem] leading-none text-black/35 transition hover:text-black/65"
+                      onClick={onPrevSlide}
+                      aria-label="Slide sebelumnya"
+                    >
+                      <span aria-hidden="true">&lt;</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 z-[7] -translate-y-1/2 bg-transparent p-0 text-[2rem] leading-none text-black/35 transition hover:text-black/65"
+                      onClick={onNextSlide}
+                      aria-label="Slide berikutnya"
+                    >
+                      <span aria-hidden="true">&gt;</span>
+                    </button>
+                    <div className="pointer-events-none absolute bottom-3 left-1/2 z-[7] flex -translate-x-1/2 items-center gap-1.5">
+                      {detailImages.map((_, index) => (
+                        <button
+                          key={`dot-${index}`}
+                          type="button"
+                          className={`pointer-events-auto h-2.5 w-2.5 rounded-full border border-white/80 ${
+                            index === activeSlideIndex
+                              ? "bg-white"
+                              : "bg-white/30"
+                          }`}
+                          aria-label={`Lihat gambar ${index + 1}`}
+                          onClick={() => setActiveSlideIndex(index)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+              </div>
             ) : (
               <div className="grid h-full w-full place-items-center p-4 text-center text-sm text-ink-700">
                 Gambar detail belum tersedia
@@ -88,15 +205,21 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
         </div>
         <div className="flex h-[530px] flex-col px-[30px] pb-[20px] pt-[34px] max-md:h-auto max-md:px-5 max-md:pb-6 max-md:pt-6">
           <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-            <h3 className="mb-2 font-brand text-[clamp(2rem,4vw,2.8rem)] leading-[1.06]">{product.fullName || product.name}</h3>
+            <h3 className="mb-2 font-brand text-[clamp(2rem,4vw,2.8rem)] leading-[1.06]">
+              {product.fullName || product.name}
+            </h3>
             <p className="mb-4 italic text-ink-700">
               <strong></strong> {product.usp}
             </p>
-            {description ? <p className="leading-[1.6] text-ink-700">{description}</p> : null}
+            {description ? (
+              <p className="leading-[1.6] text-ink-700">{description}</p>
+            ) : null}
 
             {ingredients.length > 0 ? (
               <>
-                <h4 className="mb-1.5 mt-[18px] text-[1.02rem] font-bold">Bahan Utama</h4>
+                <h4 className="mb-1.5 mt-[18px] text-[1.02rem] font-bold">
+                  Bahan Utama
+                </h4>
                 <ul className="list-disc pl-[18px] text-ink-700 marker:text-ink-700">
                   {ingredients.map((item) => (
                     <li key={item}>{item}</li>
@@ -107,7 +230,9 @@ export default function ProductModal({ product, contactWhatsApp, onClose }) {
 
             {usageSteps.length > 0 ? (
               <>
-                <h4 className="mb-1.5 mt-[18px] text-[1.02rem] font-bold">Cara Pakai</h4>
+                <h4 className="mb-1.5 mt-[18px] text-[1.02rem] font-bold">
+                  Cara Pakai
+                </h4>
                 <ul className="list-disc pl-[18px] text-ink-700 marker:text-ink-700">
                   {usageSteps.map((item) => (
                     <li key={item}>{item}</li>

@@ -1,4 +1,4 @@
-import { getMongoDb } from "./mongo-client";
+import { getMongoDb } from "./mongo-client.js";
 
 const DEFAULT_ACTOR = "system@aurelux.local";
 
@@ -92,3 +92,4 @@ export async function markMediaAssetDeleted(url, options = {}) {
 
   return result.matchedCount > 0;
 }
+

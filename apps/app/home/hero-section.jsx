@@ -7,7 +7,9 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
   return (
     <section
       id="home"
-      className="reveal relative grid min-h-screen grid-cols-[1.1fr_0.9fr] items-center overflow-hidden px-[min(8vw,90px)] pb-[72px] pt-[112px] max-[992px]:grid-cols-1 max-[992px]:gap-6 max-[992px]:px-6 max-md:justify-items-center max-md:gap-2 max-md:px-5 max-md:pb-7 max-md:pt-24 max-md:text-center"
+      className={`reveal relative grid min-h-screen ${
+        hasHeroProductImage ? "grid-cols-[1.1fr_0.9fr]" : "grid-cols-1"
+      } items-center overflow-hidden px-[min(8vw,90px)] pb-[72px] pt-[112px] max-[992px]:grid-cols-1 max-[992px]:gap-6 max-[992px]:px-6 max-md:justify-items-center max-md:gap-2 max-md:px-5 max-md:pb-7 max-md:pt-24 max-md:text-center`}
     >
       <video
         className="absolute inset-0 h-full w-full object-cover"
@@ -64,21 +66,17 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
           </div>
         </div>
       </div>
-      <div className="relative z-[2] min-h-[470px] max-[992px]:min-h-[340px] max-md:min-h-[310px] max-md:w-[min(360px,100%)]">
-        {hasHeroProductImage ? (
-          <Image
+      {hasHeroProductImage ? (
+        <div className="relative z-[2] min-h-[470px] max-[992px]:min-h-[340px] max-md:min-h-[310px] max-md:w-[min(360px,100%)]">
+          <img
             src={hero.heroProductImage}
             alt="Produk Aurelux Beauty"
-            fill
-            priority
-            style={{ objectFit: "contain", objectPosition: "center" }}
+            className="absolute inset-0 h-full w-full object-contain object-center"
+            loading="eager"
+            decoding="async"
           />
-        ) : (
-          <div className="grid h-full w-full place-items-center rounded-3xl border border-dashed border-[#8e6f26]/30 bg-white/35 text-sm text-ink-700">
-            Gambar hero belum tersedia
-          </div>
-        )}
-      </div>
+        </div>
+      ) : null}
       <a
         className="relative z-[2] mt-1 hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-normal text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:inline-flex"
         href="#produk"

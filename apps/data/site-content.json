@@ -13,6 +13,9 @@
       "fullName": "Aurelux Brightening Face Spray Toner",
       "cardImage": "/product/product1.jpeg",
       "detailImage": "/product/product1.jpeg",
+      "detailImages": [
+        "/product/product1.jpeg"
+      ],
       "usp": "Toner spray pencerah harian yang membantu menenangkan iritasi ringan.",
       "shortList": [
         "Niacinamide",
@@ -35,6 +38,9 @@
       "fullName": "Aurelux Crystal Bright Moisturizer",
       "cardImage": "/product/product4.jpeg",
       "detailImage": "/product/product4.jpeg",
+      "detailImages": [
+        "/product/product4.jpeg"
+      ],
       "usp": "Moisturizer ringan harian untuk menjaga kelembaban dan kenyamanan kulit.",
       "shortList": [
         "Membantu menjaga hidrasi kulit",

@@ -1,9 +1,10 @@
-﻿import { DEFAULT_CONTENT, normalizeContent, normalizeProduct } from "./content-store";
-import { getMongoDb } from "./mongo-client";
-import { upsertMediaAsset } from "./mongo-media-asset-store";
-import { isManagedUploadUrl } from "./media-store";
+import { DEFAULT_CONTENT, normalizeContent, normalizeProduct } from "./content-store.js";
+import { getMongoDb } from "./mongo-client.js";
+import { upsertMediaAsset } from "./mongo-media-asset-store.js";
+import { isManagedUploadUrl } from "./media-store.js";
 
 const DEFAULT_ACTOR = "system@aurelux.local";
+const LEGACY_STATIC_MEDIA_PREFIXES = ["/assets/", "/product/", "/logo/"];
 
 function getProductsCollectionName() {
   return process.env.MONGODB_PRODUCTS_COLLECTION || "products";
@@ -22,6 +23,46 @@ function normalizeActor(actor) {
     return actor.trim();
   }
   return DEFAULT_ACTOR;
+}
+
+function isLegacyStaticMediaUrl(url) {
+  if (typeof url !== "string") {
+    return false;
+  }
+
+  return LEGACY_STATIC_MEDIA_PREFIXES.some((prefix) => url.startsWith(prefix));
+}
+
+export function isAllowedMediaUrl(url) {
+  if (typeof url !== "string" || !url.trim()) {
+    return true;
+  }
+
+  return isManagedUploadUrl(url) || isLegacyStaticMediaUrl(url);
+}
+
+function assertAllowedMediaUrl(url, fieldName) {
+  if (!isAllowedMediaUrl(url)) {
+    throw new Error(
+      `${fieldName} tidak valid. Upload media melalui admin panel (upload-only) atau gunakan path aset internal yang diizinkan.`
+    );
+  }
+}
+
+function validateProductMediaUrls(product) {
+  assertAllowedMediaUrl(product?.cardImage, "cardImage");
+  assertAllowedMediaUrl(product?.detailImage, "detailImage");
+
+  const detailImages = Array.isArray(product?.detailImages) ? product.detailImages : [];
+  for (const detailImageUrl of detailImages) {
+    assertAllowedMediaUrl(detailImageUrl, "detailImages");
+  }
+}
+
+function validateHeroMediaUrls(hero) {
+  assertAllowedMediaUrl(hero?.videoUrl, "hero.videoUrl");
+  assertAllowedMediaUrl(hero?.posterImage, "hero.posterImage");
+  assertAllowedMediaUrl(hero?.heroProductImage, "hero.heroProductImage");
 }
 
 async function getNextProductCode(productsCollection) {
@@ -62,6 +103,7 @@ function mapProductDocToContentProduct(doc) {
       fullName: doc?.fullName,
       cardImage: doc?.media?.cardImageUrl,
       detailImage: doc?.media?.detailImageUrl,
+      detailImages: doc?.media?.detailImageUrls,
       usp: doc?.usp,
       shortList: doc?.shortList,
       description: doc?.description,
@@ -88,7 +130,8 @@ function mapContentProductToProductDoc(product, index, actor, previousDoc = null
     ingredients: normalized.ingredients,
     media: {
       cardImageUrl: normalized.cardImage,
-      detailImageUrl: normalized.detailImage
+      detailImageUrl: normalized.detailImage,
+      detailImageUrls: normalized.detailImages
     },
     status: "published",
     sortOrder: (index + 1) * 10,
@@ -114,7 +157,7 @@ function getMediaTypeFromUrl(url) {
   if (typeof url !== "string") {
     return "image";
   }
-  if (/\/uploads\/videos\//.test(url)) {
+  if (/\/uploads\/videos\//.test(url) || /\/video\/upload\//.test(url) || /\.(mp4|webm|mov)(\?|$)/i.test(url)) {
     return "video";
   }
   return "image";
@@ -146,11 +189,13 @@ async function syncProductMediaLinksFromContent(products, actor) {
       actor
     });
 
-    await linkManagedMedia(normalized.detailImage, {
-      usage: "product_detail",
-      linkedEntity: { collection: getProductsCollectionName(), id: normalized.id },
-      actor
-    });
+    for (const detailImageUrl of normalized.detailImages) {
+      await linkManagedMedia(detailImageUrl, {
+        usage: "product_detail",
+        linkedEntity: { collection: getProductsCollectionName(), id: normalized.id },
+        actor
+      });
+    }
   }
 }
 
@@ -204,6 +249,9 @@ export async function writeContentToMongo(nextContent, options = {}) {
   const actor = normalizeActor(options?.actor);
   const normalized = normalizeContent(nextContent);
   const now = new Date();
+
+  validateHeroMediaUrls(normalized.hero);
+  normalized.products.forEach((product) => validateProductMediaUrls(product));
 
   const { products, settings } = await getCollections();
   const existingDocs = await products.find({}, { projection: { _id: 1, createdAt: 1, createdBy: 1 } }).toArray();
@@ -293,6 +341,7 @@ export async function listProductsFromMongo() {
 export async function createProductInMongo(payload, options = {}) {
   const actor = normalizeActor(options?.actor);
   const normalized = normalizeProduct(payload, 0);
+  validateProductMediaUrls(normalized);
 
   if (!normalized.name) {
     throw new Error("Nama produk wajib diisi.");
@@ -317,7 +366,8 @@ export async function createProductInMongo(payload, options = {}) {
     ingredients: normalized.ingredients,
     media: {
       cardImageUrl: normalized.cardImage,
-      detailImageUrl: normalized.detailImage
+      detailImageUrl: normalized.detailImage,
+      detailImageUrls: normalized.detailImages
     },
     status: "published",
     sortOrder,
@@ -355,6 +405,7 @@ export async function updateProductInMongo(productId, payload, options = {}) {
     },
     0
   );
+  validateProductMediaUrls(merged);
 
   await products.updateOne(
     { _id: productId },
@@ -370,7 +421,8 @@ export async function updateProductInMongo(productId, payload, options = {}) {
         ingredients: merged.ingredients,
         media: {
           cardImageUrl: merged.cardImage,
-          detailImageUrl: merged.detailImage
+          detailImageUrl: merged.detailImage,
+          detailImageUrls: merged.detailImages
         },
         updatedAt: new Date(),
         updatedBy: actor,
@@ -389,7 +441,7 @@ export async function deleteProductInMongo(productId) {
   const { products } = await getCollections();
   const result = await products.deleteOne({ _id: productId });
 
-  if (!result.matchedCount) {
+  if (!result.deletedCount) {
     return null;
   }
 
@@ -437,6 +489,7 @@ export async function updateSettingsInMongo(partialSettings, options = {}) {
     ...merged,
     products: []
   });
+  validateHeroMediaUrls(normalized.hero);
 
   const { settings } = await getCollections();
   const now = new Date();
@@ -467,3 +520,4 @@ export async function updateSettingsInMongo(partialSettings, options = {}) {
   const fullContent = await readContentFromMongo();
   return normalizeContent(fullContent);
 }
+

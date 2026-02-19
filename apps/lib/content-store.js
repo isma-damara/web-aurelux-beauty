@@ -35,6 +35,7 @@ export const DEFAULT_CONTENT = {
     copyright: ""
   }
 };
+const MAX_DETAIL_IMAGES = 5;
 
 function resolveFirstExistingPath(paths) {
   return paths.find((candidate) => existsSync(candidate)) ?? paths[0];
@@ -71,6 +72,27 @@ function toStringArray(value) {
   return value.map((item) => toStringValue(item)).filter(Boolean);
 }
 
+function normalizeDetailImages(product, cardImage) {
+  const fromArray = toStringArray(product?.detailImages);
+  const fromLegacyField = toStringValue(product?.detailImage);
+  const merged = [...fromArray];
+
+  if (fromLegacyField) {
+    merged.push(fromLegacyField);
+  }
+
+  const unique = [...new Set(merged.filter(Boolean))].slice(0, MAX_DETAIL_IMAGES);
+  if (unique.length > 0) {
+    return unique;
+  }
+
+  if (cardImage) {
+    return [cardImage];
+  }
+
+  return [];
+}
+
 function normalizeHighlights(value) {
   if (!Array.isArray(value)) {
     return DEFAULT_CONTENT.about.highlights;
@@ -100,13 +122,16 @@ function normalizeProductId(value, index = 0) {
 
 export function normalizeProduct(product, index = 0) {
   const normalizedName = toStringValue(product?.name) || toStringValue(product?.fullName);
+  const cardImage = toStringValue(product?.cardImage);
+  const detailImages = normalizeDetailImages(product, cardImage);
 
   return {
     id: normalizeProductId(product?.id, index),
     name: normalizedName,
     fullName: toStringValue(product?.fullName) || normalizedName,
-    cardImage: toStringValue(product?.cardImage),
-    detailImage: toStringValue(product?.detailImage, toStringValue(product?.cardImage)),
+    cardImage,
+    detailImage: detailImages[0] || cardImage,
+    detailImages,
     usp: toStringValue(product?.usp),
     shortList: toStringArray(product?.shortList),
     description: toStringValue(product?.description),

@@ -89,6 +89,7 @@ Lokasi: `apps/.env.local`
 | Variable | Default | Keterangan |
 | --- | --- | --- |
 | `CONTENT_STORE_DRIVER` | `mongo` | Wajib `mongo` |
+| `MEDIA_STORAGE_DRIVER` | `local` | `local` (dev) atau `cloudinary` (production) |
 | `MONGODB_URI` | `mongodb://localhost:27017` | URI MongoDB |
 | `MONGODB_DB_NAME` | `aurelux_beauty` | Nama database |
 | `MONGODB_PRODUCTS_COLLECTION` | `products` | Collection produk |
@@ -102,6 +103,10 @@ Lokasi: `apps/.env.local`
 | `ADMIN_SEED_ROLE` | `admin` | Role admin |
 | `ADMIN_SESSION_SECRET` | (required) | Secret cookie session admin |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Base URL publik untuk metadata/link absolut |
+| `CLOUDINARY_CLOUD_NAME` | - | Wajib jika `MEDIA_STORAGE_DRIVER=cloudinary` |
+| `CLOUDINARY_API_KEY` | - | Wajib jika `MEDIA_STORAGE_DRIVER=cloudinary` |
+| `CLOUDINARY_API_SECRET` | - | Wajib jika `MEDIA_STORAGE_DRIVER=cloudinary` |
+| `CLOUDINARY_UPLOAD_FOLDER` | `aurelux-beauty` | Prefix folder upload di Cloudinary |
 
 ## MongoDB Setup
 
@@ -173,6 +178,7 @@ Semua dijalankan dari folder `apps/`.
 4. Build command: `npm run build`
 5. Tambahkan environment variables produksi (minimal):
 - `CONTENT_STORE_DRIVER=mongo`
+- `MEDIA_STORAGE_DRIVER=cloudinary`
 - `MONGODB_URI=<mongodb-atlas-uri>`
 - `MONGODB_DB_NAME=aurelux_beauty`
 - `MONGODB_PRODUCTS_COLLECTION=products`
@@ -183,10 +189,14 @@ Semua dijalankan dari folder `apps/`.
 - `MONGODB_ADMINS_COLLECTION=admins`
 - `ADMIN_SESSION_SECRET=<strong-random-secret>`
 - `NEXT_PUBLIC_APP_URL=https://domain-anda.com`
+- `CLOUDINARY_CLOUD_NAME=<cloud-name>`
+- `CLOUDINARY_API_KEY=<api-key>`
+- `CLOUDINARY_API_SECRET=<api-secret>`
+- `CLOUDINARY_UPLOAD_FOLDER=aurelux-beauty`
 
 Catatan media upload di Vercel:
-- Upload ke `public/uploads` tidak persisten pada serverless filesystem.
-- Untuk production, disarankan gunakan URL media eksternal / object storage.
+- Upload lokal ke `public/uploads` tidak persisten pada serverless filesystem.
+- Gunakan `MEDIA_STORAGE_DRIVER=cloudinary` agar upload/hapus media persisten.
 
 ### VPS / Node Server
 

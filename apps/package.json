@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "node --test --test-isolation=none --experimental-loader ./tests/js-as-esm-loader.mjs tests/*.test.mjs",
     "lint": "next lint",
     "setup:mongo:schema": "node ./scripts/setup-mongo-schema.mjs",
     "setup:mongo:admin": "node ./scripts/setup-mongo-admin.mjs",

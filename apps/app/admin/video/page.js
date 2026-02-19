@@ -51,8 +51,6 @@ const styles = {
 };
 
 const labelClass = "grid gap-[5px] text-[0.83rem] text-gray-600";
-const inputClass =
-  "w-full rounded-[9px] border border-gray-300 bg-white px-[10px] py-[9px] text-[0.86rem] text-gray-900 outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-300/30";
 const textareaClass =
   "w-full rounded-[9px] border border-gray-300 bg-white px-[10px] py-[9px] text-[0.86rem] text-gray-900 outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-300/30";
 
@@ -166,12 +164,10 @@ export default function AdminVideoPage() {
       return;
     }
 
-    if (url.startsWith("/uploads/")) {
-      try {
-        await removeMedia(url);
-      } catch (_error) {
-        setError("Media dihapus dari form, namun gagal dihapus dari storage.");
-      }
+    try {
+      await removeMedia(url);
+    } catch (_error) {
+      setError("Media dihapus dari form, namun gagal dihapus dari storage.");
     }
 
     setHeroForm((prev) => ({
@@ -269,7 +265,7 @@ export default function AdminVideoPage() {
       <section className={styles.header}>
         <p className={styles.eyebrow}>Menu Video Banner</p>
         <h1 className={styles.title}>Manajemen Video Banner</h1>
-        <p className={styles.subtitle}>Upload atau ganti video, poster, serta gambar produk banner untuk halaman utama.</p>
+        <p className={styles.subtitle}>Upload atau ganti video serta gambar produk banner untuk halaman utama.</p>
       </section>
 
       {error ? <div className={styles.error}>{error}</div> : null}
@@ -372,22 +368,6 @@ export default function AdminVideoPage() {
             </div>
 
             <div className={styles.readOnlyItem}>
-              <span className={styles.readOnlyLabel}>Poster Banner</span>
-              <MediaPreview
-                url={heroForm.posterImage}
-                alt="Poster banner"
-                emptyText="Belum ada poster banner."
-                onView={() =>
-                  setViewerMedia({
-                    url: heroForm.posterImage,
-                    type: "image",
-                    title: "Poster Banner"
-                  })
-                }
-              />
-            </div>
-
-            <div className={styles.readOnlyItem}>
               <span className={styles.readOnlyLabel}>Gambar Produk Banner</span>
               <MediaPreview
                 url={heroForm.heroProductImage}
@@ -419,15 +399,6 @@ export default function AdminVideoPage() {
                   })
                 }
               />
-              <label className={labelClass}>
-                URL Video Banner (opsional)
-                <input
-                  className={inputClass}
-                  value={heroForm.videoUrl}
-                  onChange={(event) => setHeroForm((prev) => ({ ...prev, videoUrl: event.target.value }))}
-                  placeholder="https://cdn.example.com/hero-banner.mp4"
-                />
-              </label>
               <div className={styles.mediaActions}>
                 <label className={styles.uploadButton}>
                   Upload Video Banner
@@ -435,7 +406,10 @@ export default function AdminVideoPage() {
                     className="hidden"
                     type="file"
                     accept="video/*"
-                    onChange={(event) => onUploadToField("videoUrl", event.target.files?.[0])}
+                    onChange={(event) => {
+                      onUploadToField("videoUrl", event.target.files?.[0]);
+                      event.target.value = "";
+                    }}
                   />
                 </label>
                 <button
@@ -445,50 +419,6 @@ export default function AdminVideoPage() {
                   disabled={!heroForm.videoUrl || uploadingField === "videoUrl"}
                 >
                   Hapus Video
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.mediaBlock}>
-              <p className={styles.mediaLabel}>Poster Banner</p>
-              <MediaPreview
-                url={heroForm.posterImage}
-                alt="Poster banner"
-                emptyText="Belum ada poster banner."
-                onView={() =>
-                  setViewerMedia({
-                    url: heroForm.posterImage,
-                    type: "image",
-                    title: "Poster Banner"
-                  })
-                }
-              />
-              <label className={labelClass}>
-                URL Poster Banner (opsional)
-                <input
-                  className={inputClass}
-                  value={heroForm.posterImage}
-                  onChange={(event) => setHeroForm((prev) => ({ ...prev, posterImage: event.target.value }))}
-                  placeholder="https://cdn.example.com/hero-poster.jpg"
-                />
-              </label>
-              <div className={styles.mediaActions}>
-                <label className={styles.uploadButton}>
-                  Upload Poster Banner
-                  <input
-                    className="hidden"
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => onUploadToField("posterImage", event.target.files?.[0])}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className={styles.deleteButton}
-                  onClick={() => onRemoveFieldMedia("posterImage")}
-                  disabled={!heroForm.posterImage || uploadingField === "posterImage"}
-                >
-                  Hapus Poster
                 </button>
               </div>
             </div>
@@ -507,15 +437,6 @@ export default function AdminVideoPage() {
                   })
                 }
               />
-              <label className={labelClass}>
-                URL Gambar Produk Banner (opsional)
-                <input
-                  className={inputClass}
-                  value={heroForm.heroProductImage}
-                  onChange={(event) => setHeroForm((prev) => ({ ...prev, heroProductImage: event.target.value }))}
-                  placeholder="https://cdn.example.com/hero-product.jpg"
-                />
-              </label>
               <div className={styles.mediaActions}>
                 <label className={styles.uploadButton}>
                   Upload Gambar Banner
@@ -523,7 +444,10 @@ export default function AdminVideoPage() {
                     className="hidden"
                     type="file"
                     accept="image/*"
-                    onChange={(event) => onUploadToField("heroProductImage", event.target.files?.[0])}
+                    onChange={(event) => {
+                      onUploadToField("heroProductImage", event.target.files?.[0]);
+                      event.target.value = "";
+                    }}
                   />
                 </label>
                 <button

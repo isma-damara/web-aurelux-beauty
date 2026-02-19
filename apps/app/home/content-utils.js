@@ -31,6 +31,7 @@ export const FALLBACK_CONTENT = {
     copyright: ""
   }
 };
+const MAX_DETAIL_IMAGES = 5;
 
 export function toStringValue(value, fallback = "") {
   if (typeof value === "string") {
@@ -50,6 +51,28 @@ function toArray(value) {
   }
 
   return value.map((item) => toStringValue(item).trim()).filter(Boolean);
+}
+
+function toDetailImages(product) {
+  const fromArray = toArray(product?.detailImages);
+  const fromLegacyField = toStringValue(product?.detailImage).trim();
+  const cardImage = toStringValue(product?.cardImage).trim();
+  const merged = [...fromArray];
+
+  if (fromLegacyField) {
+    merged.push(fromLegacyField);
+  }
+
+  const unique = [...new Set(merged.filter(Boolean))].slice(0, MAX_DETAIL_IMAGES);
+  if (unique.length > 0) {
+    return unique;
+  }
+
+  if (cardImage) {
+    return [cardImage];
+  }
+
+  return [];
 }
 
 function toHighlights(value) {
@@ -112,19 +135,24 @@ export function resolveContentData(content) {
     contact,
     socials,
     footer,
-    products: products.map((item, index) => ({
-      ...item,
-      id: toStringValue(item?.id, `PROD${index + 1}`),
-      name: toStringValue(item?.name, toStringValue(item?.fullName)),
-      fullName: toStringValue(item?.fullName, toStringValue(item?.name)),
-      cardImage: toStringValue(item?.cardImage),
-      detailImage: toStringValue(item?.detailImage, toStringValue(item?.cardImage)),
-      usp: toStringValue(item?.usp),
-      shortList: toArray(item?.shortList),
-      description: toStringValue(item?.description),
-      ingredients: toArray(item?.ingredients),
-      usage: toStringValue(item?.usage)
-    }))
+    products: products.map((item, index) => {
+      const cardImage = toStringValue(item?.cardImage).trim();
+      const detailImages = toDetailImages(item);
+      return {
+        ...item,
+        id: toStringValue(item?.id, `PROD${index + 1}`),
+        name: toStringValue(item?.name, toStringValue(item?.fullName)),
+        fullName: toStringValue(item?.fullName, toStringValue(item?.name)),
+        cardImage,
+        detailImage: detailImages[0] || cardImage,
+        detailImages,
+        usp: toStringValue(item?.usp),
+        shortList: toArray(item?.shortList),
+        description: toStringValue(item?.description),
+        ingredients: toArray(item?.ingredients),
+        usage: toStringValue(item?.usage)
+      };
+    })
   };
 }
 

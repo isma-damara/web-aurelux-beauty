@@ -25,8 +25,31 @@ function toArray(value) {
   return value.filter((item) => typeof item === "string" && item.trim());
 }
 
+function toDetailImageUrls(product) {
+  const fromArray = toArray(product?.detailImages);
+  const legacy = typeof product?.detailImage === "string" ? product.detailImage.trim() : "";
+  const cardImage = typeof product?.cardImage === "string" ? product.cardImage.trim() : "";
+  const merged = [...fromArray];
+
+  if (legacy) {
+    merged.push(legacy);
+  }
+
+  const unique = [...new Set(merged.filter(Boolean))].slice(0, 5);
+  if (unique.length > 0) {
+    return unique;
+  }
+
+  if (cardImage) {
+    return [cardImage];
+  }
+
+  return [];
+}
+
 function mapProductDoc(product, index, now) {
   const id = typeof product?.id === "string" && product.id.trim() ? product.id.trim() : `product-${index + 1}`;
+  const detailImageUrls = toDetailImageUrls(product);
 
   return {
     _id: id,
@@ -40,7 +63,8 @@ function mapProductDoc(product, index, now) {
     ingredients: toArray(product?.ingredients),
     media: {
       cardImageUrl: product?.cardImage || "",
-      detailImageUrl: product?.detailImage || product?.cardImage || ""
+      detailImageUrl: detailImageUrls[0] || product?.cardImage || "",
+      detailImageUrls
     },
     status: "published",
     sortOrder: (index + 1) * 10,

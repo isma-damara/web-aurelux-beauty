@@ -39,15 +39,12 @@ export default function ProductsSection({
               <div className="relative aspect-square overflow-hidden bg-[linear-gradient(180deg,#f7f5ef_0%,#f0ece1_100%)]">
                 <div className="absolute inset-0 overflow-hidden rounded-2xl">
                   {product.cardImage ? (
-                    <Image
+                    <img
                       src={product.cardImage}
                       alt={product.fullName || product.name}
-                      fill
-                      style={{
-                        objectFit: "contain",
-                        objectPosition: "center",
-                      }}
-                      className="p-[18px] transition-transform duration-300 group-hover:scale-[1.04]"
+                      className="h-full w-full p-[18px] object-contain object-center transition-transform duration-300 group-hover:scale-[1.04]"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div className="grid h-full w-full place-items-center p-6 text-center text-sm text-ink-700">
