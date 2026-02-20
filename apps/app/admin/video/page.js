@@ -69,9 +69,7 @@ function MediaPreview({ url, type, alt, emptyText, onView }) {
     <div className={styles.mediaPreviewRow}>
       <div className={styles.mediaPreviewFrame}>
         {type === "video" ? (
-          <video className={styles.mediaPreviewVideo} muted preload="metadata">
-            <source src={url} type="video/mp4" />
-          </video>
+          <video key={url} className={styles.mediaPreviewVideo} src={url} muted preload="metadata" />
         ) : (
           <img src={url} alt={alt} className={styles.mediaPreviewImage} />
         )}
@@ -593,9 +591,14 @@ export default function AdminVideoPage() {
             </div>
             <div className={styles.viewerBody}>
               {viewerMedia.type === "video" ? (
-                <video className="block max-h-[70vh] w-full bg-black" controls preload="metadata" autoPlay>
-                  <source src={viewerMedia.url} type="video/mp4" />
-                </video>
+                <video
+                  key={viewerMedia.url}
+                  className="block max-h-[70vh] w-full bg-black"
+                  src={viewerMedia.url}
+                  controls
+                  preload="metadata"
+                  autoPlay
+                />
               ) : (
                 <img src={viewerMedia.url} alt={viewerMedia.title} className="block max-h-[70vh] w-full object-contain" />
               )}

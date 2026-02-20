@@ -26,8 +26,7 @@ const styles = {
   readOnlyGrid: "grid grid-cols-2 gap-2.5 max-[860px]:grid-cols-1",
   readOnlyItem: "grid gap-[5px] rounded-[10px] border border-gray-200 bg-gray-50 p-2.5",
   readOnlyLabel: "m-0 text-[0.72rem] uppercase tracking-[0.05em] text-gray-400",
-  readOnlyValue: "m-0 whitespace-pre-wrap break-words text-[0.86rem] leading-[1.42] text-gray-900",
-  readOnlyList: "m-0 grid gap-1 pl-[18px] text-[0.86rem] text-gray-900"
+  readOnlyValue: "m-0 whitespace-pre-wrap break-words text-[0.86rem] leading-[1.42] text-gray-900"
 };
 
 const labelClass = "grid gap-[5px] text-[0.83rem] text-gray-600";
@@ -38,8 +37,7 @@ const textareaClass =
 
 const EMPTY_ABOUT_FORM = {
   title: "",
-  description: "",
-  highlightsText: ""
+  description: ""
 };
 
 const EMPTY_CONTACT_FORM = {
@@ -58,39 +56,11 @@ const EMPTY_SOCIALS_FORM = {
   tiktok: ""
 };
 
-function highlightsToText(value) {
-  if (!Array.isArray(value)) {
-    return "";
-  }
-
-  return value
-    .map((item) => `${item?.value ?? ""}|${item?.label ?? ""}`)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join("\n");
-}
-
-function textToHighlights(value) {
-  return value
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [rawValue, ...rawLabel] = line.split("|");
-      return {
-        value: rawValue?.trim() ?? "",
-        label: rawLabel.join("|").trim()
-      };
-    })
-    .filter((item) => item.value || item.label);
-}
-
 function mapContentToForms(content) {
   return {
     about: {
       title: content?.about?.title ?? "",
-      description: content?.about?.description ?? "",
-      highlightsText: highlightsToText(content?.about?.highlights)
+      description: content?.about?.description ?? ""
     },
     contact: {
       headline: content?.contact?.headline ?? "",
@@ -245,21 +215,6 @@ export default function AdminProfilePage() {
               <span className={styles.readOnlyLabel}>Deskripsi Tentang Kami</span>
               <p className={styles.readOnlyValue}>{aboutForm.description || "-"}</p>
             </div>
-
-            <div className={`${styles.readOnlyItem} ${styles.fullWidth}`}>
-              <span className={styles.readOnlyLabel}>Highlights</span>
-              {textToHighlights(aboutForm.highlightsText).length === 0 ? (
-                <p className={styles.readOnlyValue}>-</p>
-              ) : (
-                <ul className={styles.readOnlyList}>
-                  {textToHighlights(aboutForm.highlightsText).map((item) => (
-                    <li key={`${item.value}-${item.label}`}>
-                      {item.value} | {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
           </div>
         ) : (
           <form
@@ -270,8 +225,7 @@ export default function AdminProfilePage() {
                 {
                   about: {
                     title: aboutForm.title,
-                    description: aboutForm.description,
-                    highlights: textToHighlights(aboutForm.highlightsText)
+                    description: aboutForm.description
                   }
                 },
                 "Profil berhasil disimpan.",
@@ -296,17 +250,6 @@ export default function AdminProfilePage() {
                 rows={4}
                 value={aboutForm.description}
                 onChange={(event) => setAboutForm((prev) => ({ ...prev, description: event.target.value }))}
-              />
-            </label>
-
-            <label className={`${styles.fullWidth} ${labelClass}`}>
-              Highlights (format: nilai|label, 1 baris = 1 item)
-              <textarea
-                className={textareaClass}
-                rows={4}
-                value={aboutForm.highlightsText}
-                onChange={(event) => setAboutForm((prev) => ({ ...prev, highlightsText: event.target.value }))}
-                placeholder={"100%|Produk Aman\n2|Produk Unggulan\nBPOM|dan Halal"}
               />
             </label>
 

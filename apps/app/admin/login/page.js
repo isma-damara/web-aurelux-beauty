@@ -20,6 +20,7 @@ function AdminLoginPageContent() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -92,7 +93,6 @@ function AdminLoginPageContent() {
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="admin@your-domain.com"
                 autoComplete="email"
                 required
                 className="min-h-[42px] rounded-xl border border-slate-300 bg-white/95 px-3 text-[0.9rem] text-slate-900 outline-none transition focus:border-[#1f7a3f] focus:ring-4 focus:ring-[#1f7a3f]/20"
@@ -101,15 +101,35 @@ function AdminLoginPageContent() {
 
             <label className="grid gap-1.5 text-[0.82rem] font-medium text-slate-600">
               Password Admin
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="******"
-                autoComplete="current-password"
-                required
-                className="min-h-[42px] rounded-xl border border-slate-300 bg-white/95 px-3 text-[0.9rem] text-slate-900 outline-none transition focus:border-[#1f7a3f] focus:ring-4 focus:ring-[#1f7a3f]/20"
-              />
+              <div className="relative">
+                <input
+                  type={isPasswordVisible ? "text" : "password"}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
+                  required
+                  className="min-h-[42px] w-full rounded-xl border border-slate-300 bg-white/95 px-3 pr-10 text-[0.9rem] text-slate-900 outline-none transition focus:border-[#1f7a3f] focus:ring-4 focus:ring-[#1f7a3f]/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordVisible((prev) => !prev)}
+                  aria-label={isPasswordVisible ? "Sembunyikan password" : "Tampilkan password"}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-500 transition hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#1f7a3f]/35"
+                >
+                  {isPasswordVisible ? (
+                    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[1.8]">
+                      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-none stroke-current stroke-[1.8]">
+                      <path d="M2 12s3.5-6 10-6c2.5 0 4.6.9 6.2 2" />
+                      <path d="M22 12s-3.5 6-10 6c-2.5 0-4.6-.9-6.2-2" />
+                      <path d="m3 3 18 18" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </label>
 
             <button
