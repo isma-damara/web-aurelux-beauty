@@ -67,7 +67,7 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
         </div>
       </div>
       {hasHeroProductImage ? (
-        <div className="relative z-[2] min-h-[470px] max-[992px]:min-h-[340px] max-md:min-h-[310px] max-md:w-[min(360px,100%)]">
+        <div className="relative z-[2] min-h-[470px] max-[992px]:min-h-[340px] max-md:-mt-4 max-md:min-h-[310px] max-md:w-[min(360px,100%)]">
           <img
             src={hero.heroProductImage}
             alt="Produk Aurelux Beauty"
@@ -78,7 +78,7 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
         </div>
       ) : null}
       <a
-        className="relative z-[2] mt-1 hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-bold text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:-mt-3 max-md:inline-flex"
+        className="relative z-[2] mt-1 hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-bold text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:-mt-5 max-md:inline-flex"
         href="#produk"
         onClick={(event) => onHashNavClick(event, "#produk")}
       >
