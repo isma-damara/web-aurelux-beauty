@@ -41,7 +41,7 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
           {hero.subtitle}
         </p>
         <a
-          className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-transparent bg-white px-[30px] py-[10px] text-[clamp(1.12rem,1.12vw,1.12rem)] font-normal tracking-[0.015em] text-ink-900 shadow-none transition duration-200 hover:-translate-y-px hover:shadow-[0_12px_24px_rgba(31,35,33,0.15)] max-md:hidden"
+          className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-transparent bg-white px-[30px] py-[10px] text-[clamp(1.12rem,1.12vw,1.12rem)] font-bold tracking-[0.015em] text-ink-900 shadow-none transition duration-200 hover:-translate-y-px hover:shadow-[0_12px_24px_rgba(31,35,33,0.15)] max-md:hidden"
           href="#produk"
           onClick={(event) => onHashNavClick(event, "#produk")}
         >
@@ -78,7 +78,7 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
         </div>
       ) : null}
       <a
-        className="relative z-[2] mt-1 hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-normal text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:inline-flex"
+        className="relative z-[2] mt-1 hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-bold text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:inline-flex"
         href="#produk"
         onClick={(event) => onHashNavClick(event, "#produk")}
       >

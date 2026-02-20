@@ -61,6 +61,7 @@ function validateProductMediaUrls(product) {
 
 function validateHeroMediaUrls(hero) {
   assertAllowedMediaUrl(hero?.videoUrl, "hero.videoUrl");
+  assertAllowedMediaUrl(hero?.promoVideoUrl, "hero.promoVideoUrl");
   assertAllowedMediaUrl(hero?.posterImage, "hero.posterImage");
   assertAllowedMediaUrl(hero?.heroProductImage, "hero.heroProductImage");
 }
@@ -204,6 +205,12 @@ async function syncHeroMediaLinks(hero, actor) {
 
   await linkManagedMedia(hero?.videoUrl, {
     usage: "hero_video",
+    linkedEntity: { collection: getSettingsCollectionName(), id: settingsId },
+    actor
+  });
+
+  await linkManagedMedia(hero?.promoVideoUrl, {
+    usage: "promo_video",
     linkedEntity: { collection: getSettingsCollectionName(), id: settingsId },
     actor
   });

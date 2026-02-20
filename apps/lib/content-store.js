@@ -7,6 +7,7 @@ export const DEFAULT_CONTENT = {
     title: "",
     subtitle: "",
     videoUrl: "",
+    promoVideoUrl: "",
     posterImage: "",
     heroProductImage: ""
   },
@@ -157,6 +158,7 @@ export function normalizeContent(rawContent) {
       title: toStringValue(hero.title, DEFAULT_CONTENT.hero.title),
       subtitle: toStringValue(hero.subtitle, DEFAULT_CONTENT.hero.subtitle),
       videoUrl: toStringValue(hero.videoUrl, DEFAULT_CONTENT.hero.videoUrl),
+      promoVideoUrl: toStringValue(hero.promoVideoUrl, DEFAULT_CONTENT.hero.promoVideoUrl),
       posterImage: toStringValue(hero.posterImage, DEFAULT_CONTENT.hero.posterImage),
       heroProductImage: toStringValue(hero.heroProductImage, DEFAULT_CONTENT.hero.heroProductImage)
     },

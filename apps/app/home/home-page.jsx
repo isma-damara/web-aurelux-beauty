@@ -23,6 +23,7 @@ import HomeFooter from "./footer";
 import HomeHeader from "./header";
 import HeroSection from "./hero-section";
 import ProductModal from "./product-modal";
+import PromoVideoSection from "./promo-video-section";
 import ProductsSection from "./products-section";
 
 export default function HomePage({ content }) {
@@ -246,6 +247,7 @@ export default function HomePage({ content }) {
           heroTitleLines={heroTitleLines}
           onHashNavClick={onHashNavClick}
         />
+        <PromoVideoSection hero={resolved.hero} />
         <ProductsSection
           products={resolved.products}
           contactWhatsApp={resolved.contact.whatsapp}

@@ -99,6 +99,7 @@ export default function AdminVideoPage() {
     title: "",
     subtitle: "",
     videoUrl: "",
+    promoVideoUrl: "",
     posterImage: "",
     heroProductImage: ""
   });
@@ -106,11 +107,13 @@ export default function AdminVideoPage() {
     title: "",
     subtitle: "",
     videoUrl: "",
+    promoVideoUrl: "",
     posterImage: "",
     heroProductImage: ""
   });
   const isUploadingAny = Boolean(uploadingField);
   const isUploadingVideo = uploadingField === "videoUrl";
+  const isUploadingPromoVideo = uploadingField === "promoVideoUrl";
   const isUploadingHeroImage = uploadingField === "heroProductImage";
 
   useEffect(() => {
@@ -130,6 +133,7 @@ export default function AdminVideoPage() {
         title: content?.hero?.title ?? "",
         subtitle: content?.hero?.subtitle ?? "",
         videoUrl: content?.hero?.videoUrl ?? "",
+        promoVideoUrl: content?.hero?.promoVideoUrl ?? "",
         posterImage: content?.hero?.posterImage ?? "",
         heroProductImage: content?.hero?.heroProductImage ?? ""
       };
@@ -194,6 +198,7 @@ export default function AdminVideoPage() {
         title: saved?.hero?.title ?? "",
         subtitle: saved?.hero?.subtitle ?? "",
         videoUrl: saved?.hero?.videoUrl ?? "",
+        promoVideoUrl: saved?.hero?.promoVideoUrl ?? "",
         posterImage: saved?.hero?.posterImage ?? "",
         heroProductImage: saved?.hero?.heroProductImage ?? ""
       };
@@ -227,6 +232,7 @@ export default function AdminVideoPage() {
       {
         hero: {
           videoUrl: heroForm.videoUrl,
+          promoVideoUrl: heroForm.promoVideoUrl,
           posterImage: heroForm.posterImage,
           heroProductImage: heroForm.heroProductImage
         }
@@ -257,6 +263,7 @@ export default function AdminVideoPage() {
       setHeroForm((prev) => ({
         ...prev,
         videoUrl: initialHeroForm.videoUrl,
+        promoVideoUrl: initialHeroForm.promoVideoUrl,
         posterImage: initialHeroForm.posterImage,
         heroProductImage: initialHeroForm.heroProductImage
       }));
@@ -274,7 +281,7 @@ export default function AdminVideoPage() {
       <section className={styles.header}>
         <p className={styles.eyebrow}>Menu Video Banner</p>
         <h1 className={styles.title}>Manajemen Video Banner</h1>
-        <p className={styles.subtitle}>Upload atau ganti video serta gambar produk banner untuk halaman utama.</p>
+        <p className={styles.subtitle}>Upload atau ganti video banner, video promo, serta gambar produk banner untuk halaman utama.</p>
       </section>
 
       {error ? <div className={styles.error}>{error}</div> : null}
@@ -382,6 +389,22 @@ export default function AdminVideoPage() {
             </div>
 
             <div className={styles.readOnlyItem}>
+              <span className={styles.readOnlyLabel}>Video Promo</span>
+              <MediaPreview
+                url={heroForm.promoVideoUrl}
+                type="video"
+                emptyText="Belum ada video promo."
+                onView={() =>
+                  setViewerMedia({
+                    url: heroForm.promoVideoUrl,
+                    type: "video",
+                    title: "Video Promo"
+                  })
+                }
+              />
+            </div>
+
+            <div className={styles.readOnlyItem}>
               <span className={styles.readOnlyLabel}>Gambar Produk Banner</span>
               <MediaPreview
                 url={heroForm.heroProductImage}
@@ -442,6 +465,53 @@ export default function AdminVideoPage() {
                 <p className={styles.uploadStatus}>
                   <span className={styles.uploadSpinner} aria-hidden="true" />
                   Sedang upload video banner, mohon tunggu...
+                </p>
+              ) : null}
+            </div>
+
+            <div className={styles.mediaBlock}>
+              <p className={styles.mediaLabel}>Video Promo</p>
+              <MediaPreview
+                url={heroForm.promoVideoUrl}
+                type="video"
+                emptyText="Belum ada video promo."
+                onView={() =>
+                  setViewerMedia({
+                    url: heroForm.promoVideoUrl,
+                    type: "video",
+                    title: "Video Promo"
+                  })
+                }
+              />
+              <div className={styles.mediaActions}>
+                <label
+                  className={`${styles.uploadButton} ${isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""}`}
+                >
+                  {isUploadingPromoVideo ? "Mengupload Video Promo..." : "Upload Video Promo"}
+                  <input
+                    className="hidden"
+                    type="file"
+                    accept="video/*"
+                    onChange={(event) => {
+                      onUploadToField("promoVideoUrl", event.target.files?.[0]);
+                      event.target.value = "";
+                    }}
+                    disabled={isUploadingAny || isSaving}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className={styles.deleteButton}
+                  onClick={() => onRemoveFieldMedia("promoVideoUrl")}
+                  disabled={!heroForm.promoVideoUrl || isUploadingAny || isSaving}
+                >
+                  Hapus Video Promo
+                </button>
+              </div>
+              {isUploadingPromoVideo ? (
+                <p className={styles.uploadStatus}>
+                  <span className={styles.uploadSpinner} aria-hidden="true" />
+                  Sedang upload video promo, mohon tunggu...
                 </p>
               ) : null}
             </div>

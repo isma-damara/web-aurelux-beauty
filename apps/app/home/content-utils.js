@@ -3,6 +3,7 @@ export const FALLBACK_CONTENT = {
     title: "",
     subtitle: "",
     videoUrl: "",
+    promoVideoUrl: "",
     posterImage: "",
     heroProductImage: ""
   },
