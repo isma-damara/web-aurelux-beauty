@@ -48,14 +48,18 @@ const styles = {
   modalHeader: "flex items-center gap-2.5",
   formGrid: "grid grid-cols-2 gap-2.5 max-[860px]:grid-cols-1",
   fullWidth: "col-span-2 max-[860px]:col-span-1",
-  mediaBlock: "grid content-start gap-2 rounded-[10px] border border-dashed border-gray-300 p-2.5",
+  mediaBlock: "grid min-w-0 content-start gap-2 overflow-hidden rounded-[10px] border border-dashed border-gray-300 p-2.5",
   mediaLabel: "m-0 text-[0.83rem] font-semibold text-gray-700",
   mediaPreviewFrame: "min-h-[96px] w-full overflow-hidden rounded-[9px] border border-gray-200 bg-white",
   mediaPreviewImage: "block min-h-[96px] h-full w-full object-contain",
   mediaPlaceholder: "grid min-h-[96px] place-items-center rounded-[9px] border border-dashed border-gray-300 p-2.5 text-center text-[0.82rem] text-gray-500",
+  uploadStatus: "m-0 flex items-center gap-1.5 text-[0.74rem] text-gray-500",
+  uploadSpinner:
+    "inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700",
   mediaActions: "flex flex-wrap items-center gap-[7px]",
   uploadButton:
     "inline-flex min-h-[33px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[11px] text-[0.78rem] text-gray-700 transition hover:bg-gray-50",
+  uploadButtonDisabled: "pointer-events-none cursor-not-allowed opacity-60",
   buttonRow: "flex flex-wrap gap-[7px]"
 };
 
@@ -421,6 +425,9 @@ export default function AdminProductsPage() {
 
   const activeDetailImageUrl = productForm.detailImages[selectedDetailImageIndex] || "";
   const isDetailLimitReached = productForm.detailImages.length >= MAX_DETAIL_IMAGES;
+  const isUploadingAny = Boolean(uploadingField);
+  const isUploadingCard = uploadingField === "cardImage";
+  const isUploadingDetail = uploadingField === "detailImages";
 
   if (loading) {
     return <div className={styles.loading}>Memuat data produk...</div>;
@@ -553,8 +560,10 @@ export default function AdminProductsPage() {
                   emptyText="Belum ada gambar card."
                 />
                 <div className={styles.mediaActions}>
-                  <label className={styles.uploadButton}>
-                    Upload Gambar Card
+                  <label
+                    className={`${styles.uploadButton} ${isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""}`}
+                  >
+                    {isUploadingCard ? "Mengupload Gambar Card..." : "Upload Gambar Card"}
                     <input
                       className="hidden"
                       type="file"
@@ -563,17 +572,24 @@ export default function AdminProductsPage() {
                         onUploadToField("cardImage", event.target.files?.[0]);
                         event.target.value = "";
                       }}
+                      disabled={isUploadingAny || isSaving}
                     />
                   </label>
                   <button
                     type="button"
                     className={styles.deleteButton}
                     onClick={() => onRemoveFieldMedia("cardImage")}
-                    disabled={!productForm.cardImage || uploadingField === "cardImage"}
+                    disabled={!productForm.cardImage || isUploadingAny || isSaving}
                   >
                     Hapus Gambar Card
                   </button>
                 </div>
+                {isUploadingCard ? (
+                  <p className={styles.uploadStatus}>
+                    <span className={styles.uploadSpinner} aria-hidden="true" />
+                    Sedang upload gambar card, mohon tunggu...
+                  </p>
+                ) : null}
               </div>
 
               <div className={styles.mediaBlock}>
@@ -591,7 +607,7 @@ export default function AdminProductsPage() {
                     {productForm.detailImages.map((url, index) => (
                       <div
                         key={`${url}-${index}`}
-                        className={`flex items-center gap-2 rounded-[9px] border px-2 py-1.5 ${
+                        className={`flex w-full min-w-0 items-center gap-2 rounded-[9px] border px-2 py-1.5 ${
                           index === selectedDetailImageIndex
                             ? "border-gray-900 bg-white"
                             : "border-gray-200 bg-gray-50"
@@ -601,15 +617,18 @@ export default function AdminProductsPage() {
                           type="button"
                           className={styles.ghostButton}
                           onClick={() => setSelectedDetailImageIndex(index)}
+                          disabled={isUploadingAny || isSaving}
                         >
                           {`Preview ${index + 1}`}
                         </button>
-                        <span className="min-w-0 flex-1 truncate text-[0.72rem] text-gray-500">{url}</span>
+                        <span className="block min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[0.72rem] text-gray-500">
+                          {url}
+                        </span>
                         <button
                           type="button"
                           className={styles.dangerButton}
                           onClick={() => onRemoveDetailImageAt(index)}
-                          disabled={uploadingField === "detailImages"}
+                          disabled={isUploadingAny || isSaving}
                         >
                           Hapus
                         </button>
@@ -618,8 +637,12 @@ export default function AdminProductsPage() {
                   </div>
                 ) : null}
                 <div className={styles.mediaActions}>
-                  <label className={styles.uploadButton}>
-                    Upload Gambar Detail
+                  <label
+                    className={`${styles.uploadButton} ${
+                      isDetailLimitReached || isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""
+                    }`}
+                  >
+                    {isUploadingDetail ? "Mengupload Gambar Detail..." : "Upload Gambar Detail"}
                     <input
                       className="hidden"
                       type="file"
@@ -628,26 +651,48 @@ export default function AdminProductsPage() {
                         onUploadDetailImage(event.target.files?.[0]);
                         event.target.value = "";
                       }}
-                      disabled={isDetailLimitReached}
+                      disabled={isDetailLimitReached || isUploadingAny || isSaving}
                     />
                   </label>
                   <button
                     type="button"
                     className={styles.deleteButton}
                     onClick={onClearDetailImages}
-                    disabled={!productForm.detailImages.length || uploadingField === "detailImages"}
+                    disabled={!productForm.detailImages.length || isUploadingAny || isSaving}
                   >
                     Hapus Semua Detail
                   </button>
                 </div>
+                {isUploadingDetail ? (
+                  <p className={styles.uploadStatus}>
+                    <span className={styles.uploadSpinner} aria-hidden="true" />
+                    Sedang upload gambar detail, mohon tunggu...
+                  </p>
+                ) : null}
               </div>
 
               <div className={`${styles.fullWidth} border-t border-slate-200 pt-2`}>
                 <div className={styles.buttonRow}>
-                  <button type="submit" form="admin-product-form" className={styles.primaryButton} disabled={isSaving}>
-                    {isSaving ? "Menyimpan..." : editingProductId ? "Simpan Perubahan" : "Simpan Produk"}
+                  <button
+                    type="submit"
+                    form="admin-product-form"
+                    className={styles.primaryButton}
+                    disabled={isSaving || isUploadingAny}
+                  >
+                    {isSaving
+                      ? "Menyimpan..."
+                      : isUploadingAny
+                        ? "Menunggu Upload..."
+                        : editingProductId
+                          ? "Simpan Perubahan"
+                          : "Simpan Produk"}
                   </button>
-                  <button type="button" className={styles.ghostButton} onClick={onCloseFormModal} disabled={isSaving}>
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={onCloseFormModal}
+                    disabled={isSaving || isUploadingAny}
+                  >
                     Batal
                   </button>
                 </div>

@@ -29,11 +29,15 @@ const styles = {
   mediaPlaceholder: "grid min-h-[84px] place-items-center rounded-[9px] border border-dashed border-gray-300 p-2.5 text-center text-[0.82rem] text-gray-500",
   mediaPreviewMeta: "grid gap-1",
   mediaPreviewCaption: "text-[0.78rem] text-gray-500",
+  uploadStatus: "m-0 flex items-center gap-1.5 text-[0.74rem] text-gray-500",
+  uploadSpinner:
+    "inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700",
   viewButton:
     "inline-flex min-h-[33px] items-center justify-center rounded-full border border-gray-300 bg-white px-[12px] text-[0.78rem] font-medium text-gray-700 transition hover:bg-gray-50",
   mediaActions: "flex flex-wrap gap-[7px]",
   uploadButton:
     "inline-flex min-h-[33px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[11px] text-[0.78rem] text-gray-700 transition hover:bg-gray-50",
+  uploadButtonDisabled: "pointer-events-none cursor-not-allowed opacity-60",
   buttonRow: "flex flex-wrap gap-[7px]",
   primaryButton:
     "min-h-[33px] rounded-full border border-gray-900 bg-gray-900 px-[11px] text-[0.78rem] text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
@@ -103,6 +107,9 @@ export default function AdminVideoPage() {
     posterImage: "",
     heroProductImage: ""
   });
+  const isUploadingAny = Boolean(uploadingField);
+  const isUploadingVideo = uploadingField === "videoUrl";
+  const isUploadingHeroImage = uploadingField === "heroProductImage";
 
   useEffect(() => {
     if (!notice) {
@@ -279,7 +286,7 @@ export default function AdminVideoPage() {
               type="button"
               className={styles.editButton}
               onClick={() => onOpenEdit("text")}
-              disabled={isSaving || editingSection === "media"}
+              disabled={isSaving || isUploadingAny || editingSection === "media"}
             >
               Edit
             </button>
@@ -325,7 +332,12 @@ export default function AdminVideoPage() {
                 <button className={styles.primaryButton} type="submit" disabled={isSaving}>
                   {isSaving ? "Menyimpan..." : "Simpan Teks Banner"}
                 </button>
-                <button type="button" className={styles.ghostButton} onClick={() => onCancelEdit("text")} disabled={isSaving}>
+                <button
+                  type="button"
+                  className={styles.ghostButton}
+                  onClick={() => onCancelEdit("text")}
+                  disabled={isSaving || isUploadingAny}
+                >
                   Batal
                 </button>
               </div>
@@ -342,7 +354,7 @@ export default function AdminVideoPage() {
               type="button"
               className={styles.editButton}
               onClick={() => onOpenEdit("media")}
-              disabled={isSaving || editingSection === "text"}
+              disabled={isSaving || isUploadingAny || editingSection === "text"}
             >
               Edit
             </button>
@@ -400,8 +412,10 @@ export default function AdminVideoPage() {
                 }
               />
               <div className={styles.mediaActions}>
-                <label className={styles.uploadButton}>
-                  Upload Video Banner
+                <label
+                  className={`${styles.uploadButton} ${isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""}`}
+                >
+                  {isUploadingVideo ? "Mengupload Video Banner..." : "Upload Video Banner"}
                   <input
                     className="hidden"
                     type="file"
@@ -410,17 +424,24 @@ export default function AdminVideoPage() {
                       onUploadToField("videoUrl", event.target.files?.[0]);
                       event.target.value = "";
                     }}
+                    disabled={isUploadingAny || isSaving}
                   />
                 </label>
                 <button
                   type="button"
                   className={styles.deleteButton}
                   onClick={() => onRemoveFieldMedia("videoUrl")}
-                  disabled={!heroForm.videoUrl || uploadingField === "videoUrl"}
+                  disabled={!heroForm.videoUrl || isUploadingAny || isSaving}
                 >
                   Hapus Video
                 </button>
               </div>
+              {isUploadingVideo ? (
+                <p className={styles.uploadStatus}>
+                  <span className={styles.uploadSpinner} aria-hidden="true" />
+                  Sedang upload video banner, mohon tunggu...
+                </p>
+              ) : null}
             </div>
 
             <div className={styles.mediaBlock}>
@@ -438,8 +459,10 @@ export default function AdminVideoPage() {
                 }
               />
               <div className={styles.mediaActions}>
-                <label className={styles.uploadButton}>
-                  Upload Gambar Banner
+                <label
+                  className={`${styles.uploadButton} ${isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""}`}
+                >
+                  {isUploadingHeroImage ? "Mengupload Gambar Banner..." : "Upload Gambar Banner"}
                   <input
                     className="hidden"
                     type="file"
@@ -448,25 +471,37 @@ export default function AdminVideoPage() {
                       onUploadToField("heroProductImage", event.target.files?.[0]);
                       event.target.value = "";
                     }}
+                    disabled={isUploadingAny || isSaving}
                   />
                 </label>
                 <button
                   type="button"
                   className={styles.deleteButton}
                   onClick={() => onRemoveFieldMedia("heroProductImage")}
-                  disabled={!heroForm.heroProductImage || uploadingField === "heroProductImage"}
+                  disabled={!heroForm.heroProductImage || isUploadingAny || isSaving}
                 >
                   Hapus Gambar Banner
                 </button>
               </div>
+              {isUploadingHeroImage ? (
+                <p className={styles.uploadStatus}>
+                  <span className={styles.uploadSpinner} aria-hidden="true" />
+                  Sedang upload gambar banner, mohon tunggu...
+                </p>
+              ) : null}
             </div>
 
             <div className={styles.fullWidth}>
               <div className={styles.buttonRow}>
-                <button className={styles.primaryButton} type="submit" disabled={isSaving}>
-                  {isSaving ? "Menyimpan..." : "Simpan Media Banner"}
+                <button className={styles.primaryButton} type="submit" disabled={isSaving || isUploadingAny}>
+                  {isSaving ? "Menyimpan..." : isUploadingAny ? "Menunggu Upload..." : "Simpan Media Banner"}
                 </button>
-                <button type="button" className={styles.ghostButton} onClick={() => onCancelEdit("media")} disabled={isSaving}>
+                <button
+                  type="button"
+                  className={styles.ghostButton}
+                  onClick={() => onCancelEdit("media")}
+                  disabled={isSaving || isUploadingAny}
+                >
                   Batal
                 </button>
               </div>
