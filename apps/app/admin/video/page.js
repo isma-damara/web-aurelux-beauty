@@ -12,8 +12,8 @@ const styles = {
   subtitle: "mt-1.5 text-[0.88rem] text-gray-500",
   error: "rounded-[10px] border border-red-200 bg-red-50 px-[11px] py-[9px] text-[0.86rem] text-red-700",
   notice: "rounded-[10px] border border-emerald-900/20 bg-emerald-50 px-[11px] py-[9px] text-[0.86rem] text-emerald-800",
-  card: "grid gap-3 rounded-xl border border-gray-200 bg-white p-[14px]",
-  cardToolbar: "flex flex-wrap items-center justify-between gap-2.5",
+  card: "grid gap-3 rounded-xl border border-gray-200 bg-white p-[14px] max-[640px]:p-3",
+  cardToolbar: "flex flex-wrap items-center justify-between gap-2.5 max-[640px]:items-stretch",
   readOnlyGrid: "grid grid-cols-2 gap-2.5 max-[860px]:grid-cols-1",
   readOnlyItem: "grid gap-[5px] rounded-[10px] border border-gray-200 bg-gray-50 p-2.5",
   readOnlyLabel: "m-0 text-[0.72rem] uppercase tracking-[0.05em] text-gray-400",
@@ -22,8 +22,9 @@ const styles = {
   fullWidth: "col-span-2 max-[860px]:col-span-1",
   mediaBlock: "grid gap-2 rounded-[10px] border border-dashed border-gray-300 p-2.5",
   mediaLabel: "m-0 text-[0.83rem] font-semibold text-gray-700",
-  mediaPreviewRow: "flex items-center gap-3",
-  mediaPreviewFrame: "h-[84px] w-[132px] shrink-0 overflow-hidden rounded-[9px] border border-gray-200 bg-white",
+  mediaPreviewRow: "flex items-center gap-3 max-[640px]:grid",
+  mediaPreviewFrame:
+    "h-[84px] w-[132px] shrink-0 overflow-hidden rounded-[9px] border border-gray-200 bg-white max-[640px]:h-[180px] max-[640px]:w-full",
   mediaPreviewImage: "block h-full w-full object-cover",
   mediaPreviewVideo: "block h-full w-full bg-black",
   mediaPlaceholder: "grid min-h-[84px] place-items-center rounded-[9px] border border-dashed border-gray-300 p-2.5 text-center text-[0.82rem] text-gray-500",
@@ -33,22 +34,23 @@ const styles = {
   uploadSpinner:
     "inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700",
   viewButton:
-    "inline-flex min-h-[33px] items-center justify-center rounded-full border border-gray-300 bg-white px-[12px] text-[0.78rem] font-medium text-gray-700 transition hover:bg-gray-50",
-  mediaActions: "flex flex-wrap gap-[7px]",
+    "inline-flex min-h-[36px] items-center justify-center rounded-full border border-gray-300 bg-white px-[12px] text-[0.8rem] font-medium text-gray-700 transition hover:bg-gray-50 max-[640px]:w-full",
+  mediaActions: "flex flex-wrap gap-[7px] max-[640px]:grid max-[640px]:grid-cols-1",
   uploadButton:
-    "inline-flex min-h-[33px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[11px] text-[0.78rem] text-gray-700 transition hover:bg-gray-50",
+    "inline-flex min-h-[36px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[12px] text-[0.8rem] text-gray-700 transition hover:bg-gray-50 max-[640px]:w-full max-[640px]:justify-center",
   uploadButtonDisabled: "pointer-events-none cursor-not-allowed opacity-60",
-  buttonRow: "flex flex-wrap gap-[7px]",
+  buttonRow: "flex flex-wrap gap-[7px] max-[640px]:grid max-[640px]:grid-cols-1",
   primaryButton:
-    "min-h-[33px] rounded-full border border-gray-900 bg-gray-900 px-[11px] text-[0.78rem] text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[36px] rounded-full border border-gray-900 bg-gray-900 px-[12px] text-[0.8rem] text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   editButton:
-    "min-h-[40px] rounded-full border border-gray-900 bg-gray-900 px-[14px] text-[0.9rem] font-semibold text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[40px] rounded-full border border-gray-900 bg-gray-900 px-[14px] text-[0.9rem] font-semibold text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   deleteButton:
-    "min-h-[40px] rounded-full border border-red-200 bg-red-50 px-[14px] text-[0.9rem] font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[40px] rounded-full border border-red-200 bg-red-50 px-[14px] text-[0.9rem] font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   ghostButton:
-    "min-h-[33px] rounded-full border border-gray-300 bg-white px-[11px] text-[0.78rem] text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[36px] rounded-full border border-gray-300 bg-white px-[12px] text-[0.8rem] text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   viewerBackdrop: "fixed inset-0 z-[95] grid place-items-center bg-slate-900/60 p-4",
-  viewerCard: "grid w-[min(900px,100%)] gap-3 rounded-2xl bg-white p-4 shadow-[0_20px_50px_rgba(15,23,42,0.35)]",
+  viewerCard:
+    "grid w-[min(900px,100%)] gap-3 rounded-2xl bg-white p-4 shadow-[0_20px_50px_rgba(15,23,42,0.35)] max-[640px]:p-3",
   viewerHead: "flex items-center justify-between gap-2",
   viewerTitle: "text-[0.95rem] font-semibold text-gray-900",
   viewerBody: "overflow-hidden rounded-xl border border-gray-200 bg-slate-50"

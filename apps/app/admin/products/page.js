@@ -20,28 +20,30 @@ const styles = {
   subtitle: "mt-1.5 text-[0.88rem] text-gray-500",
   error: "rounded-[10px] border border-red-200 bg-red-50 px-[11px] py-[9px] text-[0.86rem] text-red-700",
   notice: "rounded-[10px] border border-emerald-900/20 bg-emerald-50 px-[11px] py-[9px] text-[0.86rem] text-emerald-800",
-  card: "grid gap-3 rounded-xl border border-gray-200 bg-white p-[14px]",
-  cardToolbar: "flex flex-wrap items-center justify-between gap-2.5",
+  card: "grid gap-3 rounded-xl border border-gray-200 bg-white p-[14px] max-[640px]:p-3",
+  cardToolbar: "flex flex-wrap items-center justify-between gap-2.5 max-[640px]:items-stretch",
   primaryButton:
-    "min-h-[33px] rounded-full border border-gray-900 bg-gray-900 px-[11px] text-[0.78rem] text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[36px] rounded-full border border-gray-900 bg-gray-900 px-[12px] text-[0.8rem] text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full max-[640px]:justify-center",
   editButton:
-    "min-h-[40px] rounded-full border border-gray-900 bg-gray-900 px-[14px] text-[0.9rem] font-semibold text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[40px] rounded-full border border-gray-900 bg-gray-900 px-[14px] text-[0.9rem] font-semibold text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   ghostButton:
-    "min-h-[33px] rounded-full border border-gray-300 bg-white px-[11px] text-[0.78rem] text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[36px] rounded-full border border-gray-300 bg-white px-[12px] text-[0.8rem] text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   deleteButton:
-    "min-h-[40px] rounded-full border border-red-200 bg-red-50 px-[14px] text-[0.9rem] font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[40px] rounded-full border border-red-200 bg-red-50 px-[14px] text-[0.9rem] font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   dangerButton:
-    "min-h-[33px] rounded-full border border-red-200 bg-red-50 px-[11px] text-[0.78rem] text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60",
+    "min-h-[36px] rounded-full border border-red-200 bg-red-50 px-[12px] text-[0.8rem] text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   tableWrap: "overflow-hidden rounded-[10px] border border-gray-200 bg-white max-[960px]:overflow-visible max-[960px]:border-0",
   tableHead:
     "grid grid-cols-[120px_minmax(190px,1.35fr)_minmax(190px,1.45fr)_minmax(130px,0.85fr)] items-center gap-[9px] border-b border-gray-200 bg-gray-50 px-[11px] py-[10px] text-[0.72rem] uppercase tracking-[0.05em] text-gray-500 max-[960px]:hidden",
   empty: "m-0 p-3 text-[0.86rem] text-gray-500",
   tableRow:
     "grid grid-cols-[120px_minmax(190px,1.35fr)_minmax(190px,1.45fr)_minmax(130px,0.85fr)] items-center gap-[9px] border-b border-[#edf0f3] px-[11px] py-[10px] last:border-b-0 max-[960px]:mb-2 max-[960px]:grid-cols-1 max-[960px]:gap-1.5 max-[960px]:rounded-[10px] max-[960px]:border max-[960px]:border-gray-200",
-  tableCode: "text-[0.8rem] text-gray-500",
+  tableCode: "text-[0.8rem] text-gray-500 max-[960px]:break-all",
   tableName: "text-[0.87rem] font-semibold text-gray-900",
-  tableUsp: "truncate whitespace-nowrap text-[0.83rem] text-gray-500",
-  inlineActions: "flex gap-1.5",
+  tableUsp: "truncate whitespace-nowrap text-[0.83rem] text-gray-500 max-[960px]:whitespace-normal",
+  inlineActions: "flex flex-wrap gap-1.5 max-[960px]:w-full",
+  mobileField: "grid gap-0.5 max-[960px]:grid-cols-[78px_minmax(0,1fr)] max-[960px]:items-start",
+  mobileFieldLabel: "hidden text-[0.68rem] uppercase tracking-[0.06em] text-gray-400 max-[960px]:block",
   helperText: "m-0 text-[0.84rem] text-gray-500",
   modalCard:
     "mt-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/65 p-[14px] max-[860px]:p-3",
@@ -56,11 +58,11 @@ const styles = {
   uploadStatus: "m-0 flex items-center gap-1.5 text-[0.74rem] text-gray-500",
   uploadSpinner:
     "inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700",
-  mediaActions: "flex flex-wrap items-center gap-[7px]",
+  mediaActions: "flex flex-wrap items-center gap-[7px] max-[640px]:grid max-[640px]:grid-cols-1",
   uploadButton:
-    "inline-flex min-h-[33px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[11px] text-[0.78rem] text-gray-700 transition hover:bg-gray-50",
+    "inline-flex min-h-[36px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[12px] text-[0.8rem] text-gray-700 transition hover:bg-gray-50 max-[640px]:w-full max-[640px]:justify-center",
   uploadButtonDisabled: "pointer-events-none cursor-not-allowed opacity-60",
-  buttonRow: "flex flex-wrap gap-[7px]"
+  buttonRow: "flex flex-wrap gap-[7px] max-[640px]:grid max-[640px]:grid-cols-1"
 };
 
 const labelClass = "grid gap-[5px] text-[0.83rem] text-gray-600";
@@ -465,17 +467,29 @@ export default function AdminProductsPage() {
           ) : (
             products.map((product, index) => (
               <article key={product.id} className={styles.tableRow}>
-                <span className={styles.tableCode}>#PROD{index + 1}</span>
-                <span className={styles.tableName}>{product.name || product.fullName}</span>
-                <span className={styles.tableUsp}>{product.usp}</span>
-                <span className={styles.inlineActions}>
-                  <button type="button" className={styles.editButton} onClick={() => onEditProduct(product)}>
-                    Edit
-                  </button>
-                  <button type="button" className={styles.deleteButton} onClick={() => onDeleteProduct(product)}>
-                    Hapus
-                  </button>
-                </span>
+                <div className={styles.mobileField}>
+                  <span className={styles.mobileFieldLabel}>ID</span>
+                  <span className={styles.tableCode}>#PROD{index + 1}</span>
+                </div>
+                <div className={styles.mobileField}>
+                  <span className={styles.mobileFieldLabel}>Nama</span>
+                  <span className={styles.tableName}>{product.name || product.fullName}</span>
+                </div>
+                <div className={styles.mobileField}>
+                  <span className={styles.mobileFieldLabel}>USP</span>
+                  <span className={styles.tableUsp}>{product.usp}</span>
+                </div>
+                <div className={styles.mobileField}>
+                  <span className={styles.mobileFieldLabel}>Aksi</span>
+                  <span className={styles.inlineActions}>
+                    <button type="button" className={styles.editButton} onClick={() => onEditProduct(product)}>
+                      Edit
+                    </button>
+                    <button type="button" className={styles.deleteButton} onClick={() => onDeleteProduct(product)}>
+                      Hapus
+                    </button>
+                  </span>
+                </div>
               </article>
             ))
           )}
@@ -607,7 +621,7 @@ export default function AdminProductsPage() {
                     {productForm.detailImages.map((url, index) => (
                       <div
                         key={`${url}-${index}`}
-                        className={`flex w-full min-w-0 items-center gap-2 rounded-[9px] border px-2 py-1.5 ${
+                        className={`flex w-full min-w-0 items-center gap-2 rounded-[9px] border px-2 py-1.5 max-[640px]:flex-wrap ${
                           index === selectedDetailImageIndex
                             ? "border-gray-900 bg-white"
                             : "border-gray-200 bg-gray-50"

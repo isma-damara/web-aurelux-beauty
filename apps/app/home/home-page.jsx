@@ -6,6 +6,7 @@ import AboutSection from "./about-section";
 import ContactSection from "./contact-section";
 import {
   DEFAULT_HEADER_OFFSET,
+  MOBILE_SCROLL_SPEED_MULTIPLIER,
   SCROLL_DURATION_MAX_MS,
   SCROLL_DURATION_MIN_MS,
   SCROLL_GAP,
@@ -169,9 +170,14 @@ export default function HomePage({ content }) {
         const delta = targetTop - startTop;
         const startTime = performance.now();
         const distance = Math.abs(delta);
+        const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
+        const speedMultiplier = isMobileViewport ? MOBILE_SCROLL_SPEED_MULTIPLIER : 1;
         const duration = Math.min(
-          SCROLL_DURATION_MAX_MS,
-          Math.max(SCROLL_DURATION_MIN_MS, distance / SCROLL_PIXELS_PER_MS),
+          SCROLL_DURATION_MAX_MS / speedMultiplier,
+          Math.max(
+            SCROLL_DURATION_MIN_MS / speedMultiplier,
+            distance / (SCROLL_PIXELS_PER_MS * speedMultiplier),
+          ),
         );
 
         isProgrammaticScrollingRef.current = true;
