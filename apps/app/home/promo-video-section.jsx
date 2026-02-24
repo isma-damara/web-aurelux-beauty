@@ -19,7 +19,7 @@ export default function PromoVideoSection({ hero }) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          videoNode.muted = false;
+          videoNode.muted = true;
           const playPromise = videoNode.play();
           if (playPromise?.catch) {
             playPromise.catch(() => {});
@@ -64,7 +64,10 @@ export default function PromoVideoSection({ hero }) {
             <video
               ref={videoRef}
               className="block aspect-video w-full object-cover"
+              autoPlay
               loop
+              muted
+              defaultMuted
               playsInline
               preload="metadata"
               poster={posterImage || undefined}
