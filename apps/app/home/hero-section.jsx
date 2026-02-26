@@ -28,8 +28,8 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
             "linear-gradient(95deg, rgba(245, 231, 187, 0.92) 10%, rgba(235, 214, 149, 0.62) 65%, rgba(239, 224, 181, 0.7) 100%)",
         }}
       />
-      <div className="relative z-[2] max-w-[520px] max-md:max-w-full">
-        <h1 className="my-[10px] mb-[14px] font-brand text-[clamp(2.2rem,5vw,4.05rem)] leading-[1.04] max-md:mb-0 max-md:text-[clamp(2rem,8.2vw,2.85rem)] max-md:leading-[1.08]">
+      <div className="relative z-[2] max-w-[520px] max-md:mx-auto max-md:flex max-md:max-w-full max-md:flex-col max-md:items-center">
+        <h1 className="my-[10px] mb-[14px] font-brand text-[clamp(2.2rem,5vw,4.05rem)] leading-[1.04] max-md:mb-0 max-md:text-center max-md:text-[clamp(2rem,8.2vw,2.85rem)] max-md:leading-[1.08]">
           {heroTitleLines.map((line, index) => (
             <Fragment key={`${line}-${index}`}>
               {line}
@@ -47,6 +47,15 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
         >
           Lihat Produk
         </a>
+        {!hasHeroProductImage ? (
+          <a
+            className="relative z-[2] mt-10 hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-bold text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:inline-flex"
+            href="#produk"
+            onClick={(event) => onHashNavClick(event, "#produk")}
+          >
+            Lihat Produk
+          </a>
+        ) : null}
         <div className="mt-4 flex items-center gap-3 max-md:hidden">
           <div className="h-[100px] w-[140px]">
             <Image
@@ -67,23 +76,25 @@ export default function HeroSection({ hero, heroTitleLines, onHashNavClick }) {
         </div>
       </div>
       {hasHeroProductImage ? (
-        <div className="relative z-[2] min-h-[470px] max-[992px]:min-h-[340px] max-md:-mt-4 max-md:min-h-[310px] max-md:w-[min(360px,100%)]">
-          <img
-            src={hero.heroProductImage}
-            alt="Produk Aurelux Beauty"
-            className="absolute inset-0 h-full w-full object-contain object-center"
-            loading="eager"
-            decoding="async"
-          />
-        </div>
+        <>
+          <div className="relative z-[2] min-h-[470px] max-[992px]:mx-auto max-[992px]:min-h-[340px] max-[992px]:w-[min(420px,100%)] max-[992px]:justify-self-center max-md:-mt-4 max-md:min-h-[310px] max-md:w-[min(360px,100%)]">
+            <img
+              src={hero.heroProductImage}
+              alt="Produk Aurelux Beauty"
+              className="absolute inset-0 h-full w-full object-contain object-center"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+          <a
+            className="relative z-[2] hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-bold text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:-mt-10 max-md:inline-flex"
+            href="#produk"
+            onClick={(event) => onHashNavClick(event, "#produk")}
+          >
+            Lihat Produk
+          </a>
+        </>
       ) : null}
-      <a
-        className="relative z-[2] mt-1 hidden min-h-[44px] min-w-[146px] items-center justify-center rounded-full border border-transparent bg-white px-4 py-2 text-[0.82rem] font-bold text-ink-900 shadow-[0_10px_24px_rgba(31,35,33,0.14)] max-md:-mt-5 max-md:inline-flex"
-        href="#produk"
-        onClick={(event) => onHashNavClick(event, "#produk")}
-      >
-        Lihat Produk
-      </a>
     </section>
   );
 }

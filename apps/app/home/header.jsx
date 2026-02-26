@@ -37,16 +37,7 @@ export default function HomeHeader({ isScrolled, isMobileMenuOpen, onToggleMobil
               decoding="async"
             />
           ) : (
-            <>
-              <span className="block font-brand text-[1.95rem] leading-none tracking-[0.14em] text-[#a78532] max-md:text-[1.42rem]">
-                {logoPrimary}
-              </span>
-              {logoSecondary ? (
-                <span className="block text-[0.78rem] tracking-[0.23em] text-ink-700 max-md:text-[0.67rem]">
-                  {logoSecondary}
-                </span>
-              ) : null}
-            </>
+            <span className="sr-only">{`${logoPrimary} ${logoSecondary}`.trim() || "Logo brand"}</span>
           )}
         </a>
 

@@ -186,7 +186,9 @@ export default function HomePage({ content }) {
         const animate = (timestamp) => {
           const elapsed = timestamp - startTime;
           const progress = Math.min(1, elapsed / duration);
-          const eased = easeInOutSine(progress);
+          const eased = isMobileViewport
+            ? 1 - Math.pow(1 - progress, 3)
+            : easeInOutSine(progress);
           window.scrollTo(0, startTop + delta * eased);
 
           if (progress < 1) {

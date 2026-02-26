@@ -22,16 +22,7 @@ export default function HomeFooter({ brand, footer, socials, onHashNavClick }) {
               decoding="async"
             />
           ) : (
-            <>
-              <p className="font-brand text-[1.95rem] leading-none tracking-[0.14em] text-[#a78532]">
-                {logoPrimary}
-              </p>
-              {logoSecondary ? (
-                <p className="mt-1 text-[0.7rem] tracking-[0.22em] text-[#d7d1b2]">
-                  {logoSecondary}
-                </p>
-              ) : null}
-            </>
+            <span className="sr-only">{`${logoPrimary} ${logoSecondary}`.trim() || "Logo brand"}</span>
           )}
           <p className={`${logoImage ? "-mt-12" : "mt-2"} text-[#d4d7cd]`}>
             {footer.tagline}
