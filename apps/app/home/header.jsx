@@ -13,7 +13,7 @@ export default function HomeHeader({ isScrolled, isMobileMenuOpen, onToggleMobil
         isScrolled ? "bg-white/90 shadow-[0_10px_28px_rgba(31,35,33,0.08)] backdrop-blur-md" : ""
       }`}
     >
-      <div className="mx-auto grid min-h-[104px] w-[min(1180px,calc(100%-40px))] grid-cols-[1fr_auto_1fr_auto] items-center gap-5 max-md:relative max-md:flex max-md:min-h-[92px] max-md:w-[calc(100%-24px)] max-md:justify-center">
+      <div className="mx-auto grid min-h-[125px] w-[min(1180px,calc(100%-40px))] grid-cols-[1fr_auto_1fr_auto] items-center gap-5 max-md:relative max-md:flex max-md:min-h-[110px] max-md:w-[calc(100%-24px)] max-md:justify-center">
         <nav className="flex items-center justify-end gap-[clamp(14px,2.4vw,30px)] max-md:hidden" aria-label="Main navigation left">
           {LEFT_NAV_ITEMS.map((item) => (
             <a
@@ -32,7 +32,7 @@ export default function HomeHeader({ isScrolled, isMobileMenuOpen, onToggleMobil
             <img
               src={logoImage}
               alt={`${logoPrimary} ${logoSecondary}`.trim() || "Logo brand"}
-              className="mx-auto block h-[93px] w-auto object-contain max-md:h-[84px]"
+              className="mx-auto block h-[112px] w-auto object-contain max-md:h-[101px]"
               loading="eager"
               decoding="async"
             />
@@ -76,7 +76,7 @@ export default function HomeHeader({ isScrolled, isMobileMenuOpen, onToggleMobil
         </button>
       </div>
       <nav
-        className={`absolute left-3 right-3 top-[90px] z-40 flex flex-col gap-0.5 rounded-[18px] border border-[rgba(60,63,60,0.12)] bg-white/95 p-2.5 shadow-[0_12px_26px_rgba(31,35,33,0.1)] transition-all duration-100 md:hidden ${
+        className={`absolute left-3 right-3 top-[108px] z-40 flex flex-col gap-0.5 rounded-[18px] border border-[rgba(60,63,60,0.12)] bg-white/95 p-2.5 shadow-[0_12px_26px_rgba(31,35,33,0.1)] transition-all duration-75 md:hidden ${
           isMobileMenuOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
         }`}
         aria-label="Mobile navigation"

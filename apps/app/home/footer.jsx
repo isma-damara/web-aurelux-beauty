@@ -17,7 +17,7 @@ export default function HomeFooter({ brand, footer, socials, onHashNavClick }) {
             <img
               src={logoImage}
               alt={`${logoPrimary} ${logoSecondary}`.trim() || "Logo brand"}
-              className="-ml-2 block h-[136px] w-auto object-contain max-md:ml-auto max-md:mr-auto max-md:h-[118px]"
+              className="-ml-2 block h-[163px] w-auto object-contain max-md:ml-auto max-md:mr-auto max-md:h-[142px]"
               loading="lazy"
               decoding="async"
             />
