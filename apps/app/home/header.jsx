@@ -57,7 +57,7 @@ export default function HomeHeader({ isScrolled, isMobileMenuOpen, onToggleMobil
         </button>
       </div>
       <nav
-        className={`absolute left-3 right-3 top-[76px] z-40 flex flex-col gap-0.5 rounded-[18px] border border-[rgba(60,63,60,0.12)] bg-white/95 p-2.5 shadow-[0_12px_26px_rgba(31,35,33,0.1)] transition-all duration-200 md:hidden ${
+        className={`absolute left-3 right-3 top-[76px] z-40 flex flex-col gap-0.5 rounded-[18px] border border-[rgba(60,63,60,0.12)] bg-white/95 p-2.5 shadow-[0_12px_26px_rgba(31,35,33,0.1)] transition-all duration-100 md:hidden ${
           isMobileMenuOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
         }`}
         aria-label="Mobile navigation"

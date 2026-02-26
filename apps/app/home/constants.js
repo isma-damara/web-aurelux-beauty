@@ -13,4 +13,4 @@ export const SCROLL_GAP = 10;
 export const SCROLL_DURATION_MIN_MS = 1050;
 export const SCROLL_DURATION_MAX_MS = 2400;
 export const SCROLL_PIXELS_PER_MS = 0.85;
-export const MOBILE_SCROLL_SPEED_MULTIPLIER = 2;
+export const MOBILE_SCROLL_SPEED_MULTIPLIER = 4;
