@@ -66,6 +66,10 @@ function validateHeroMediaUrls(hero) {
   assertAllowedMediaUrl(hero?.heroProductImage, "hero.heroProductImage");
 }
 
+function validateBrandMediaUrls(brand) {
+  assertAllowedMediaUrl(brand?.logoImage, "brand.logoImage");
+}
+
 async function getNextProductCode(productsCollection) {
   const docs = await productsCollection.find({ isDeleted: { $ne: true } }, { projection: { _id: 1 } }).toArray();
   const maxUsedNumber = docs.reduce((highest, doc) => {
@@ -150,6 +154,7 @@ function mapSettingsDocToContentParts(settingsDoc) {
     about: settingsDoc?.about ?? DEFAULT_CONTENT.about,
     contact: settingsDoc?.contact ?? DEFAULT_CONTENT.contact,
     socials: settingsDoc?.socials ?? DEFAULT_CONTENT.socials,
+    brand: settingsDoc?.brand ?? DEFAULT_CONTENT.brand,
     footer: settingsDoc?.footer ?? DEFAULT_CONTENT.footer
   };
 }
@@ -228,6 +233,16 @@ async function syncHeroMediaLinks(hero, actor) {
   });
 }
 
+async function syncBrandMediaLinks(brand, actor) {
+  const settingsId = getSettingsDocumentId();
+
+  await linkManagedMedia(brand?.logoImage, {
+    usage: "brand_logo",
+    linkedEntity: { collection: getSettingsCollectionName(), id: settingsId },
+    actor
+  });
+}
+
 export async function readContentFromMongo() {
   const { products, settings } = await getCollections();
   const [settingsDoc, productDocs] = await Promise.all([
@@ -258,6 +273,7 @@ export async function writeContentToMongo(nextContent, options = {}) {
   const now = new Date();
 
   validateHeroMediaUrls(normalized.hero);
+  validateBrandMediaUrls(normalized.brand);
   normalized.products.forEach((product) => validateProductMediaUrls(product));
 
   const { products, settings } = await getCollections();
@@ -316,6 +332,7 @@ export async function writeContentToMongo(nextContent, options = {}) {
         about: normalized.about,
         contact: normalized.contact,
         socials: normalized.socials,
+        brand: normalized.brand,
         footer: normalized.footer,
         updatedAt: now,
         updatedBy: actor,
@@ -331,6 +348,7 @@ export async function writeContentToMongo(nextContent, options = {}) {
 
   await syncProductMediaLinksFromContent(normalized.products, actor);
   await syncHeroMediaLinks(normalized.hero, actor);
+  await syncBrandMediaLinks(normalized.brand, actor);
 
   return normalized;
 }
@@ -465,6 +483,7 @@ export async function readSettingsFromMongo() {
       about: DEFAULT_CONTENT.about,
       contact: DEFAULT_CONTENT.contact,
       socials: DEFAULT_CONTENT.socials,
+      brand: DEFAULT_CONTENT.brand,
       footer: DEFAULT_CONTENT.footer
     };
   }
@@ -475,6 +494,7 @@ export async function readSettingsFromMongo() {
     about: parts.about,
     contact: parts.contact,
     socials: parts.socials,
+    brand: parts.brand,
     footer: parts.footer
   };
 }
@@ -488,6 +508,7 @@ export async function updateSettingsInMongo(partialSettings, options = {}) {
     about: partialSettings?.about ? { ...current.about, ...partialSettings.about } : current.about,
     contact: partialSettings?.contact ? { ...current.contact, ...partialSettings.contact } : current.contact,
     socials: partialSettings?.socials ? { ...current.socials, ...partialSettings.socials } : current.socials,
+    brand: partialSettings?.brand ? { ...current.brand, ...partialSettings.brand } : current.brand,
     footer: partialSettings?.footer ? { ...current.footer, ...partialSettings.footer } : current.footer
   };
 
@@ -497,6 +518,7 @@ export async function updateSettingsInMongo(partialSettings, options = {}) {
     products: []
   });
   validateHeroMediaUrls(normalized.hero);
+  validateBrandMediaUrls(normalized.brand);
 
   const { settings } = await getCollections();
   const now = new Date();
@@ -509,6 +531,7 @@ export async function updateSettingsInMongo(partialSettings, options = {}) {
         about: normalized.about,
         contact: normalized.contact,
         socials: normalized.socials,
+        brand: normalized.brand,
         footer: normalized.footer,
         updatedAt: now,
         updatedBy: actor,
@@ -523,6 +546,7 @@ export async function updateSettingsInMongo(partialSettings, options = {}) {
   );
 
   await syncHeroMediaLinks(normalized.hero, actor);
+  await syncBrandMediaLinks(normalized.brand, actor);
 
   const fullContent = await readContentFromMongo();
   return normalizeContent(fullContent);

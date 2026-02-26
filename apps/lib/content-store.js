@@ -31,6 +31,11 @@ export const DEFAULT_CONTENT = {
     facebook: "",
     tiktok: ""
   },
+  brand: {
+    logoImage: "",
+    logoPrimary: "AURELUX",
+    logoSecondary: "BEAUTY"
+  },
   footer: {
     tagline: "",
     copyright: ""
@@ -147,6 +152,7 @@ export function normalizeContent(rawContent) {
   const about = source.about && typeof source.about === "object" ? source.about : {};
   const contact = source.contact && typeof source.contact === "object" ? source.contact : {};
   const socials = source.socials && typeof source.socials === "object" ? source.socials : {};
+  const brand = source.brand && typeof source.brand === "object" ? source.brand : {};
   const footer = source.footer && typeof source.footer === "object" ? source.footer : {};
 
   const products = Array.isArray(source.products) ? source.products : DEFAULT_CONTENT.products;
@@ -187,6 +193,16 @@ export function normalizeContent(rawContent) {
       instagram: toStringValue(socials.instagram, DEFAULT_CONTENT.socials.instagram),
       facebook: toStringValue(socials.facebook, DEFAULT_CONTENT.socials.facebook),
       tiktok: toStringValue(socials.tiktok, DEFAULT_CONTENT.socials.tiktok)
+    },
+    brand: {
+      ...DEFAULT_CONTENT.brand,
+      ...brand,
+      logoImage: toStringValue(
+        brand.logoImage,
+        toStringValue(brand.headerLogoImage, toStringValue(brand.footerLogoImage, DEFAULT_CONTENT.brand.logoImage))
+      ),
+      logoPrimary: toStringValue(brand.logoPrimary, DEFAULT_CONTENT.brand.logoPrimary),
+      logoSecondary: toStringValue(brand.logoSecondary, DEFAULT_CONTENT.brand.logoSecondary)
     },
     footer: {
       ...DEFAULT_CONTENT.footer,

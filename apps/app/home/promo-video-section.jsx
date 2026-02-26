@@ -7,8 +7,6 @@ export default function PromoVideoSection({ hero }) {
   const posterImage = hero?.posterImage;
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
-  const hasStartedRef = useRef(false);
-  const isLockedRef = useRef(false);
 
   useEffect(() => {
     const sectionNode = sectionRef.current;
@@ -21,38 +19,26 @@ export default function PromoVideoSection({ hero }) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          if (isLockedRef.current || hasStartedRef.current) {
-            return;
-          }
           videoNode.muted = true;
           const playPromise = videoNode.play();
-          hasStartedRef.current = true;
           if (playPromise?.catch) {
             playPromise.catch(() => {});
           }
           return;
         }
 
-        if (hasStartedRef.current && !videoNode.ended) {
-          videoNode.pause();
-          isLockedRef.current = true;
-        }
+        videoNode.pause();
+        videoNode.currentTime = 0;
       },
       { threshold: 0.55 },
     );
-
-    const onEnded = () => {
-      isLockedRef.current = true;
-    };
-
-    videoNode.addEventListener("ended", onEnded);
 
     observer.observe(sectionNode);
 
     return () => {
       observer.disconnect();
-      videoNode.removeEventListener("ended", onEnded);
       videoNode.pause();
+      videoNode.currentTime = 0;
     };
   }, [promoVideoUrl]);
 
@@ -78,6 +64,8 @@ export default function PromoVideoSection({ hero }) {
             <video
               ref={videoRef}
               className="block aspect-video w-full object-cover"
+              autoPlay
+              loop
               muted
               defaultMuted
               playsInline

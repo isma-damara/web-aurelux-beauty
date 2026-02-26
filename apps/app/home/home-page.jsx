@@ -238,6 +238,7 @@ export default function HomePage({ content }) {
         isScrolled={isScrolled}
         isMobileMenuOpen={isMobileMenuOpen}
         onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+        brand={resolved.brand}
         onHashNavClick={onHashNavClick}
       />
 
@@ -261,6 +262,7 @@ export default function HomePage({ content }) {
       </main>
 
       <HomeFooter
+        brand={resolved.brand}
         footer={resolved.footer}
         socials={resolved.socials}
         onHashNavClick={onHashNavClick}

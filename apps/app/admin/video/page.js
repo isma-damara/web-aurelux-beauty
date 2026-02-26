@@ -101,6 +101,9 @@ export default function AdminVideoPage() {
     posterImage: "",
     heroProductImage: ""
   });
+  const [brandForm, setBrandForm] = useState({
+    logoImage: ""
+  });
   const [initialHeroForm, setInitialHeroForm] = useState({
     title: "",
     subtitle: "",
@@ -109,7 +112,11 @@ export default function AdminVideoPage() {
     posterImage: "",
     heroProductImage: ""
   });
+  const [initialBrandForm, setInitialBrandForm] = useState({
+    logoImage: ""
+  });
   const isUploadingAny = Boolean(uploadingField);
+  const isUploadingLogo = uploadingField === "logoImage";
   const isUploadingVideo = uploadingField === "videoUrl";
   const isUploadingPromoVideo = uploadingField === "promoVideoUrl";
   const isUploadingHeroImage = uploadingField === "heroProductImage";
@@ -135,8 +142,13 @@ export default function AdminVideoPage() {
         posterImage: content?.hero?.posterImage ?? "",
         heroProductImage: content?.hero?.heroProductImage ?? ""
       };
+      const mappedBrand = {
+        logoImage: content?.brand?.logoImage ?? content?.brand?.headerLogoImage ?? content?.brand?.footerLogoImage ?? ""
+      };
       setHeroForm(mapped);
+      setBrandForm(mappedBrand);
       setInitialHeroForm(mapped);
+      setInitialBrandForm(mappedBrand);
       setEditingSection("");
     } catch (loadError) {
       setError(loadError.message || "Gagal memuat data banner.");
@@ -187,6 +199,44 @@ export default function AdminVideoPage() {
     }));
   };
 
+  const onUploadBrandLogo = async (file) => {
+    if (!file) {
+      return;
+    }
+    setUploadingField("logoImage");
+    setError("");
+    try {
+      const uploaded = await uploadMedia(file);
+      setBrandForm((prev) => ({
+        ...prev,
+        logoImage: uploaded.url
+      }));
+      setNotice("Upload logo berhasil.");
+    } catch (uploadError) {
+      setError(uploadError.message || "Gagal upload logo.");
+    } finally {
+      setUploadingField("");
+    }
+  };
+
+  const onRemoveBrandLogo = async () => {
+    const url = brandForm.logoImage;
+    if (!url) {
+      return;
+    }
+
+    try {
+      await removeMedia(url);
+    } catch (_error) {
+      setError("Logo dihapus dari form, namun gagal dihapus dari storage.");
+    }
+
+    setBrandForm((prev) => ({
+      ...prev,
+      logoImage: ""
+    }));
+  };
+
   const onSaveSection = async (payload, successMessage) => {
     setIsSaving(true);
     setError("");
@@ -200,8 +250,13 @@ export default function AdminVideoPage() {
         posterImage: saved?.hero?.posterImage ?? "",
         heroProductImage: saved?.hero?.heroProductImage ?? ""
       };
+      const mappedBrand = {
+        logoImage: saved?.brand?.logoImage ?? saved?.brand?.headerLogoImage ?? saved?.brand?.footerLogoImage ?? ""
+      };
       setHeroForm(mapped);
+      setBrandForm(mappedBrand);
       setInitialHeroForm(mapped);
+      setInitialBrandForm(mappedBrand);
       setEditingSection("");
       setNotice(successMessage);
     } catch (saveError) {
@@ -233,6 +288,9 @@ export default function AdminVideoPage() {
           promoVideoUrl: heroForm.promoVideoUrl,
           posterImage: heroForm.posterImage,
           heroProductImage: heroForm.heroProductImage
+        },
+        brand: {
+          logoImage: brandForm.logoImage
         }
       },
       "Media banner berhasil disimpan."
@@ -265,6 +323,7 @@ export default function AdminVideoPage() {
         posterImage: initialHeroForm.posterImage,
         heroProductImage: initialHeroForm.heroProductImage
       }));
+      setBrandForm(initialBrandForm);
     }
 
     setEditingSection("");
@@ -279,7 +338,7 @@ export default function AdminVideoPage() {
       <section className={styles.header}>
         <p className={styles.eyebrow}>Menu Video Banner</p>
         <h1 className={styles.title}>Manajemen Video Banner</h1>
-        <p className={styles.subtitle}>Upload atau ganti video banner, video promo, serta gambar produk banner untuk halaman utama.</p>
+        <p className={styles.subtitle}>Upload atau ganti logo website, gambar produk banner, video banner, dan video promo untuk halaman utama.</p>
       </section>
 
       {error ? <div className={styles.error}>{error}</div> : null}
@@ -371,6 +430,38 @@ export default function AdminVideoPage() {
         {editingSection !== "media" ? (
           <div className={styles.readOnlyGrid}>
             <div className={styles.readOnlyItem}>
+              <span className={styles.readOnlyLabel}>Logo Website (Header & Footer)</span>
+              <MediaPreview
+                url={brandForm.logoImage}
+                alt="Logo website"
+                emptyText="Belum ada logo website."
+                onView={() =>
+                  setViewerMedia({
+                    url: brandForm.logoImage,
+                    type: "image",
+                    title: "Logo Website"
+                  })
+                }
+              />
+            </div>
+
+            <div className={styles.readOnlyItem}>
+              <span className={styles.readOnlyLabel}>Gambar Produk Banner</span>
+              <MediaPreview
+                url={heroForm.heroProductImage}
+                alt="Gambar produk banner"
+                emptyText="Belum ada gambar produk banner."
+                onView={() =>
+                  setViewerMedia({
+                    url: heroForm.heroProductImage,
+                    type: "image",
+                    title: "Gambar Produk Banner"
+                  })
+                }
+              />
+            </div>
+
+            <div className={styles.readOnlyItem}>
               <span className={styles.readOnlyLabel}>Video Banner</span>
               <MediaPreview
                 url={heroForm.videoUrl}
@@ -402,8 +493,58 @@ export default function AdminVideoPage() {
               />
             </div>
 
-            <div className={styles.readOnlyItem}>
-              <span className={styles.readOnlyLabel}>Gambar Produk Banner</span>
+          </div>
+        ) : (
+          <form className={styles.formGrid} onSubmit={onSaveMedia}>
+            <div className={styles.mediaBlock}>
+              <p className={styles.mediaLabel}>Logo Website (Header & Footer)</p>
+              <MediaPreview
+                url={brandForm.logoImage}
+                alt="Logo website"
+                emptyText="Belum ada logo website."
+                onView={() =>
+                  setViewerMedia({
+                    url: brandForm.logoImage,
+                    type: "image",
+                    title: "Logo Website"
+                  })
+                }
+              />
+              <div className={styles.mediaActions}>
+                <label
+                  className={`${styles.uploadButton} ${isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""}`}
+                >
+                  {isUploadingLogo ? "Mengupload Logo..." : "Upload Logo"}
+                  <input
+                    className="hidden"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => {
+                      onUploadBrandLogo(event.target.files?.[0]);
+                      event.target.value = "";
+                    }}
+                    disabled={isUploadingAny || isSaving}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className={styles.deleteButton}
+                  onClick={onRemoveBrandLogo}
+                  disabled={!brandForm.logoImage || isUploadingAny || isSaving}
+                >
+                  Hapus Logo
+                </button>
+              </div>
+              {isUploadingLogo ? (
+                <p className={styles.uploadStatus}>
+                  <span className={styles.uploadSpinner} aria-hidden="true" />
+                  Sedang upload logo website, mohon tunggu...
+                </p>
+              ) : null}
+            </div>
+
+            <div className={styles.mediaBlock}>
+              <p className={styles.mediaLabel}>Gambar Produk Banner</p>
               <MediaPreview
                 url={heroForm.heroProductImage}
                 alt="Gambar produk banner"
@@ -416,10 +557,39 @@ export default function AdminVideoPage() {
                   })
                 }
               />
+              <div className={styles.mediaActions}>
+                <label
+                  className={`${styles.uploadButton} ${isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""}`}
+                >
+                  {isUploadingHeroImage ? "Mengupload Gambar Banner..." : "Upload Gambar Banner"}
+                  <input
+                    className="hidden"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => {
+                      onUploadToField("heroProductImage", event.target.files?.[0]);
+                      event.target.value = "";
+                    }}
+                    disabled={isUploadingAny || isSaving}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className={styles.deleteButton}
+                  onClick={() => onRemoveFieldMedia("heroProductImage")}
+                  disabled={!heroForm.heroProductImage || isUploadingAny || isSaving}
+                >
+                  Hapus Gambar Banner
+                </button>
+              </div>
+              {isUploadingHeroImage ? (
+                <p className={styles.uploadStatus}>
+                  <span className={styles.uploadSpinner} aria-hidden="true" />
+                  Sedang upload gambar banner, mohon tunggu...
+                </p>
+              ) : null}
             </div>
-          </div>
-        ) : (
-          <form className={styles.formGrid} onSubmit={onSaveMedia}>
+
             <div className={styles.mediaBlock}>
               <p className={styles.mediaLabel}>Video Banner</p>
               <MediaPreview
@@ -510,53 +680,6 @@ export default function AdminVideoPage() {
                 <p className={styles.uploadStatus}>
                   <span className={styles.uploadSpinner} aria-hidden="true" />
                   Sedang upload video promo, mohon tunggu...
-                </p>
-              ) : null}
-            </div>
-
-            <div className={styles.mediaBlock}>
-              <p className={styles.mediaLabel}>Gambar Produk Banner</p>
-              <MediaPreview
-                url={heroForm.heroProductImage}
-                alt="Gambar produk banner"
-                emptyText="Belum ada gambar produk banner."
-                onView={() =>
-                  setViewerMedia({
-                    url: heroForm.heroProductImage,
-                    type: "image",
-                    title: "Gambar Produk Banner"
-                  })
-                }
-              />
-              <div className={styles.mediaActions}>
-                <label
-                  className={`${styles.uploadButton} ${isUploadingAny || isSaving ? styles.uploadButtonDisabled : ""}`}
-                >
-                  {isUploadingHeroImage ? "Mengupload Gambar Banner..." : "Upload Gambar Banner"}
-                  <input
-                    className="hidden"
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => {
-                      onUploadToField("heroProductImage", event.target.files?.[0]);
-                      event.target.value = "";
-                    }}
-                    disabled={isUploadingAny || isSaving}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className={styles.deleteButton}
-                  onClick={() => onRemoveFieldMedia("heroProductImage")}
-                  disabled={!heroForm.heroProductImage || isUploadingAny || isSaving}
-                >
-                  Hapus Gambar Banner
-                </button>
-              </div>
-              {isUploadingHeroImage ? (
-                <p className={styles.uploadStatus}>
-                  <span className={styles.uploadSpinner} aria-hidden="true" />
-                  Sedang upload gambar banner, mohon tunggu...
                 </p>
               ) : null}
             </div>

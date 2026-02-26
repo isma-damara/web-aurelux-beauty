@@ -27,6 +27,11 @@ export const FALLBACK_CONTENT = {
     facebook: "",
     tiktok: ""
   },
+  brand: {
+    logoImage: "",
+    logoPrimary: "AURELUX",
+    logoSecondary: "BEAUTY"
+  },
   footer: {
     tagline: "",
     copyright: ""
@@ -126,6 +131,7 @@ export function resolveContentData(content) {
   };
   const contact = { ...FALLBACK_CONTENT.contact, ...(content?.contact ?? {}) };
   const socials = { ...FALLBACK_CONTENT.socials, ...(content?.socials ?? {}) };
+  const brand = { ...FALLBACK_CONTENT.brand, ...(content?.brand ?? {}) };
   const footer = { ...FALLBACK_CONTENT.footer, ...(content?.footer ?? {}) };
 
   const products = Array.isArray(content?.products) ? content.products : FALLBACK_CONTENT.products;
@@ -135,6 +141,7 @@ export function resolveContentData(content) {
     about,
     contact,
     socials,
+    brand,
     footer,
     products: products.map((item, index) => {
       const cardImage = toStringValue(item?.cardImage).trim();

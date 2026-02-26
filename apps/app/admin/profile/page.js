@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchContent, updateSettings } from "../admin-api";
+import { fetchContent, removeMedia, updateSettings, uploadMedia } from "../admin-api";
 
 const styles = {
   loading: "grid min-h-[200px] place-items-center rounded-xl border border-dashed border-gray-300 text-[0.9rem] text-gray-500",
@@ -20,13 +20,28 @@ const styles = {
     "min-h-[40px] rounded-full border border-gray-900 bg-gray-900 px-[14px] text-[0.9rem] font-semibold text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   primaryButton:
     "min-h-[36px] rounded-full border border-gray-900 bg-gray-900 px-[12px] text-[0.8rem] text-white transition hover:bg-slate-950 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
+  deleteButton:
+    "min-h-[36px] rounded-full border border-red-200 bg-red-50 px-[12px] text-[0.8rem] text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 max-[640px]:w-full",
   formGrid: "grid grid-cols-2 gap-2.5 max-[860px]:grid-cols-1",
   fullWidth: "col-span-2 max-[860px]:col-span-1",
   buttonRow: "flex flex-wrap gap-[7px] max-[640px]:grid max-[640px]:grid-cols-1",
   readOnlyGrid: "grid grid-cols-2 gap-2.5 max-[860px]:grid-cols-1",
   readOnlyItem: "grid gap-[5px] rounded-[10px] border border-gray-200 bg-gray-50 p-2.5",
   readOnlyLabel: "m-0 text-[0.72rem] uppercase tracking-[0.05em] text-gray-400",
-  readOnlyValue: "m-0 whitespace-pre-wrap break-words text-[0.86rem] leading-[1.42] text-gray-900"
+  readOnlyValue: "m-0 whitespace-pre-wrap break-words text-[0.86rem] leading-[1.42] text-gray-900",
+  mediaBlock: "grid gap-2 rounded-[10px] border border-dashed border-gray-300 p-2.5",
+  mediaLabel: "m-0 text-[0.83rem] font-semibold text-gray-700",
+  mediaPreviewFrame:
+    "grid h-[112px] w-full place-items-center overflow-hidden rounded-[9px] border border-gray-200 bg-white max-[640px]:h-[160px]",
+  mediaPreviewImage: "block h-full w-full object-contain",
+  mediaPlaceholder: "grid min-h-[84px] place-items-center rounded-[9px] border border-dashed border-gray-300 p-2.5 text-center text-[0.82rem] text-gray-500",
+  mediaActions: "flex flex-wrap gap-[7px] max-[640px]:grid max-[640px]:grid-cols-1",
+  uploadButton:
+    "inline-flex min-h-[36px] cursor-pointer items-center rounded-full border border-gray-300 bg-white px-[12px] text-[0.8rem] text-gray-700 transition hover:bg-gray-50 max-[640px]:w-full max-[640px]:justify-center",
+  uploadButtonDisabled: "pointer-events-none cursor-not-allowed opacity-60",
+  uploadStatus: "m-0 flex items-center gap-1.5 text-[0.74rem] text-gray-500",
+  uploadSpinner:
+    "inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700"
 };
 
 const labelClass = "grid gap-[5px] text-[0.83rem] text-gray-600";
@@ -56,8 +71,19 @@ const EMPTY_SOCIALS_FORM = {
   tiktok: ""
 };
 
+const EMPTY_BRAND_FORM = {
+  logoImage: "",
+  logoPrimary: "AURELUX",
+  logoSecondary: "BEAUTY"
+};
+
 function mapContentToForms(content) {
   return {
+    brand: {
+      logoImage: content?.brand?.logoImage ?? content?.brand?.headerLogoImage ?? content?.brand?.footerLogoImage ?? "",
+      logoPrimary: content?.brand?.logoPrimary ?? "AURELUX",
+      logoSecondary: content?.brand?.logoSecondary ?? "BEAUTY"
+    },
     about: {
       title: content?.about?.title ?? "",
       description: content?.about?.description ?? ""
@@ -81,10 +107,23 @@ function mapContentToForms(content) {
 
 function buildEditingState(activeSection = "") {
   return {
+    brand: activeSection === "brand",
     about: activeSection === "about",
     contact: activeSection === "contact",
     socials: activeSection === "socials"
   };
+}
+
+function BrandLogoPreview({ url, alt }) {
+  if (!url) {
+    return <div className={styles.mediaPlaceholder}>Belum ada logo.</div>;
+  }
+
+  return (
+    <div className={styles.mediaPreviewFrame}>
+      <img src={url} alt={alt} className={styles.mediaPreviewImage} />
+    </div>
+  );
 }
 
 export default function AdminProfilePage() {
@@ -92,18 +131,22 @@ export default function AdminProfilePage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadingField, setUploadingField] = useState("");
 
+  const [brandForm, setBrandForm] = useState(EMPTY_BRAND_FORM);
   const [aboutForm, setAboutForm] = useState(EMPTY_ABOUT_FORM);
   const [contactForm, setContactForm] = useState(EMPTY_CONTACT_FORM);
   const [socialsForm, setSocialsForm] = useState(EMPTY_SOCIALS_FORM);
 
   const [initialForms, setInitialForms] = useState({
+    brand: EMPTY_BRAND_FORM,
     about: EMPTY_ABOUT_FORM,
     contact: EMPTY_CONTACT_FORM,
     socials: EMPTY_SOCIALS_FORM
   });
 
   const [editingSection, setEditingSection] = useState(buildEditingState());
+  const isUploadingAny = Boolean(uploadingField);
 
   useEffect(() => {
     if (!notice) {
@@ -120,6 +163,7 @@ export default function AdminProfilePage() {
     try {
       const content = await fetchContent();
       const mapped = mapContentToForms(content);
+      setBrandForm(mapped.brand);
       setAboutForm(mapped.about);
       setContactForm(mapped.contact);
       setSocialsForm(mapped.socials);
@@ -136,12 +180,54 @@ export default function AdminProfilePage() {
     loadProfileData();
   }, []);
 
+  const onUploadBrandField = async (field, file) => {
+    if (!file) {
+      return;
+    }
+
+    setUploadingField(field);
+    setError("");
+    try {
+      const uploaded = await uploadMedia(file);
+      setBrandForm((prev) => ({
+        ...prev,
+        [field]: uploaded.url
+      }));
+      setNotice("Upload logo brand berhasil.");
+    } catch (uploadError) {
+      setError(uploadError.message || "Gagal upload logo brand.");
+    } finally {
+      setUploadingField("");
+    }
+  };
+
+  const onRemoveBrandField = async (field) => {
+    const url = brandForm[field];
+    if (!url) {
+      return;
+    }
+
+    try {
+      await removeMedia(url);
+    } catch (_error) {
+      setError("Logo dihapus dari form, namun gagal dihapus dari storage.");
+    }
+
+    setBrandForm((prev) => ({
+      ...prev,
+      [field]: ""
+    }));
+  };
+
   const openEditSection = (sectionName) => {
     setError("");
     setEditingSection(buildEditingState(sectionName));
   };
 
   const cancelEditSection = (sectionName) => {
+    if (sectionName === "brand") {
+      setBrandForm(initialForms.brand);
+    }
     if (sectionName === "about") {
       setAboutForm(initialForms.about);
     }
@@ -161,14 +247,17 @@ export default function AdminProfilePage() {
     try {
       const saved = await updateSettings(payload);
       const mapped = mapContentToForms(saved);
+      setBrandForm(mapped.brand);
       setAboutForm(mapped.about);
       setContactForm(mapped.contact);
       setSocialsForm(mapped.socials);
       setInitialForms(mapped);
       setNotice(successMessage);
+      setUploadingField("");
       setEditingSection(buildEditingState());
     } catch (saveError) {
       setError(saveError.message || "Gagal menyimpan perubahan.");
+      setUploadingField("");
       if (sectionName) {
         setEditingSection(buildEditingState(sectionName));
       }

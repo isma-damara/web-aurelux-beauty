@@ -37,6 +37,7 @@ export async function PUT(request) {
       about: saved.about,
       contact: saved.contact,
       socials: saved.socials,
+      brand: saved.brand,
       footer: saved.footer
     };
 

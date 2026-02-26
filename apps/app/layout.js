@@ -33,6 +33,10 @@ export const metadata = {
   title: "Aurelux Beauty | Katalog Produk Skincare",
   description:
     "Website katalog resmi Aurelux Beauty untuk menampilkan produk unggulan skincare harian dan konsultasi langsung via WhatsApp.",
+  icons: {
+    icon: "/AURELUX.ico",
+    shortcut: "/AURELUX.ico"
+  },
   openGraph: {
     title: "Aurelux Beauty",
     description:
